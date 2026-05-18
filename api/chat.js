@@ -27,6 +27,7 @@ function userPrompt(task, payload) {
 Crea una scheda fitness/palestra/cardio personalizzata in JSON valido.
 Considera anamnesi, obiettivi, sport, tipi di allenamento richiesti, materiale disponibile, numero allenamenti, progressi e focus richiesto.
 La scheda deve essere specifica e ben fatta: non usare nomi generici se puoi indicare variante, intensita', progressione o scopo.
+Imposta tu i recuperi in secondi in base a obiettivo, livello, esercizio e tempo disponibile. L'utente non li inserisce manualmente.
 Non includere markdown. Restituisci solo JSON con questa forma:
 {
   "plan": {
@@ -40,7 +41,7 @@ Non includere markdown. Restituisci solo JSON con questa forma:
         "exercises": [
           {
             "name": "string",
-            "type": "Palestra forza | Ipertrofia | Corsa | Bici | Nuoto | HIIT | Mobilita | Prevenzione infortuni",
+            "type": "Forza in palestra | Ipertrofia | Dimagrimento/metabolico | Corsa base | Corsa performance | Bici | Nuoto | HIIT | Mobilita e core | Prevenzione infortuni",
             "description": "descrizione tecnica chiara",
             "commonErrors": "errori comuni",
             "sets": "3",

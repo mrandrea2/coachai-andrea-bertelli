@@ -302,6 +302,19 @@
         margin-bottom: 14px;
       }
 
+      .site-footer {
+        margin-top: 28px;
+        padding: 22px;
+        border-top: 3px solid var(--ink);
+        background: rgba(255, 255, 255, 0.82);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        color: var(--ink);
+        font-weight: 750;
+      }
+
       .panel p {
         margin-top: 0;
       }
@@ -784,6 +797,13 @@
           margin-bottom: 8px;
         }
 
+        .site-footer {
+          display: grid;
+          gap: 6px;
+          padding: 14px;
+          margin-top: 16px;
+        }
+
         .notice {
           padding: 12px;
           border-left-width: 6px;
@@ -930,14 +950,10 @@
           <div class="brand-mark">AB</div>
           <h1>CoachAI</h1>
           <p>
-            Fitness AI Lab sviluppato da Andrea Bertelli. Schede personalizzate,
-            allenamenti interattivi e progressioni guidate dai dati reali.
+            Schede personalizzate, allenamenti interattivi e progressioni guidate dai dati reali.
           </p>
         </div>
-        <p class="fine-print">
-          Psicologo, nutrizionista e preparatore fisico. Per consulenze avanzate:
-          humanperformancelab.app@gmail.com
-        </p>
+        <p class="fine-print">Sviluppato da Andrea Bertelli</p>
       </div>
       <div class="auth-panel">
         <div class="panel">
@@ -958,21 +974,9 @@
               <label for="authPassword">Password</label>
               <input id="authPassword" type="password" autocomplete="current-password" required />
             </div>
-            <div id="coachCodeWrap" class="field hidden">
-              <label for="coachCode">Codice coach/admin</label>
-              <input id="coachCode" placeholder="AB-COACH" />
-            </div>
-            <label class="check">
-              <input id="isCoach" type="checkbox" />
-              Sono Andrea / coach
-            </label>
             <button class="btn brand" type="submit" style="width: 100%; margin-top: 16px">
               Continua
             </button>
-            <p class="muted" style="margin: 14px 0 0">
-              Demo locale: la registrazione è salvata nel browser. In produzione collega un database
-              e un sistema auth server-side.
-            </p>
           </form>
         </div>
       </div>
@@ -983,7 +987,6 @@
         <div class="brand-block">
           <div class="brand-mark">AB</div>
           <h1>CoachAI</h1>
-          <p class="subbrand">Fitness AI Lab</p>
           <p>Sviluppato da Andrea Bertelli</p>
         </div>
         <nav class="nav" aria-label="Sezioni app">
@@ -1012,7 +1015,7 @@
         <section id="dashboard" class="section active">
           <div class="panel hero-brand">
             <h3>CoachAI</h3>
-            <p>Fitness AI Lab sviluppato da Andrea Bertelli</p>
+            <p>Schede intelligenti, allenamenti tracciabili, progressioni su misura.</p>
           </div>
           <div class="grid cols-3">
             <div class="panel">
@@ -1025,11 +1028,6 @@
               <h3>Ultima scheda</h3>
               <p id="lastPlanSummary" class="muted">Nessuna scheda generata.</p>
               <button class="btn brand" data-section-jump="scheda" type="button">Apri scheda</button>
-            </div>
-            <div class="panel">
-              <h3>Consulenza diretta</h3>
-              <p>Per schede avanzate, dolore, dubbi clinici o obiettivi agonistici.</p>
-              <a class="btn secondary" href="mailto:humanperformancelab.app@gmail.com">Scrivi ad Andrea</a>
             </div>
           </div>
           <div class="grid cols-3" style="margin-top: 18px">
@@ -1117,10 +1115,6 @@
                   <label for="minutes">Minuti per seduta</label>
                   <input id="minutes" type="number" min="20" max="150" value="60" />
                 </div>
-                <div class="field">
-                  <label for="recovery">Recupero default sec.</label>
-                  <input id="recovery" type="number" min="30" max="240" value="90" />
-                </div>
               </div>
             </div>
 
@@ -1130,7 +1124,7 @@
                 <label for="preferences">Esercizi preferiti, non graditi, note logistiche</label>
                 <textarea id="preferences" placeholder="Es. preferisco manubri, non amo burpees, palestra affollata..."></textarea>
               </div>
-              <button class="btn brand" type="submit">Salva anamnesi</button>
+              <button class="btn brand" type="submit">Salva e genera proposta</button>
             </div>
           </form>
         </section>
@@ -1145,10 +1139,10 @@
               </div>
               <div class="top-actions" style="justify-content: flex-start">
                 <button id="generatePlanBtn" class="btn brand" type="button">Genera con AI</button>
-                <button id="printPlanBtn" class="btn secondary" type="button">Download PDF</button>
+                <button id="printPlanBtn" class="btn secondary" type="button">Scarica PDF</button>
               </div>
               <p class="muted">
-                Il PDF usa la stampa del browser: scegli “Salva come PDF”.
+                Si apre una versione stampabile: scegli “Salva come PDF”.
               </p>
             </div>
             <div class="panel soft">
@@ -1241,6 +1235,12 @@
             </div>
           </div>
         </section>
+        <footer class="site-footer">
+          <strong>Andrea Bertelli</strong>
+          <span>Psicologo, nutrizionista e preparatore fisico.</span>
+          <span>Per consulenze avanzate, dolore, dubbi clinici o obiettivi agonistici: </span>
+          <a href="mailto:humanperformancelab.app@gmail.com">humanperformancelab.app@gmail.com</a>
+        </footer>
       </main>
     </div>
 
@@ -1256,9 +1256,20 @@
 
     <script>
       const STORE_KEY = "abFitnessAiLab.v1";
-      const COACH_CODE = "AB-COACH";
+      const COACH_EMAILS = ["humanperformancelab.app@gmail.com"];
       const sports = ["Calcio", "Tennis", "Nuoto", "Pallavolo", "Basket", "Ciclismo", "Running", "Padel", "Rugby", "Sci", "Altro"];
-      const trainingTypes = ["Palestra forza", "Ipertrofia", "Corsa", "Bici", "Nuoto", "HIIT", "Mobilità", "Prevenzione infortuni"];
+      const trainingTypes = [
+        "Forza in palestra",
+        "Ipertrofia",
+        "Dimagrimento/metabolico",
+        "Corsa base",
+        "Corsa performance",
+        "Bici",
+        "Nuoto",
+        "HIIT",
+        "Mobilità e core",
+        "Prevenzione infortuni",
+      ];
       const equipment = ["Corpo libero", "Manubri", "Bilanciere", "Kettlebell", "Elastici", "TRX", "Macchine palestra", "Cavi", "Panca", "Tapis roulant", "Bike", "Piscina"];
 
       const state = loadState();
@@ -1355,7 +1366,7 @@
       function populateForms() {
         const user = currentUser();
         const a = user.anamnesis || {};
-        ["age", "height", "weight", "goal", "level", "limitations", "days", "minutes", "recovery", "preferences"].forEach((id) => {
+        ["age", "height", "weight", "goal", "level", "limitations", "days", "minutes", "preferences"].forEach((id) => {
           if (a[id] !== undefined) document.getElementById(id).value = a[id];
         });
         setCheckedValues("sports", a.sports || []);
@@ -1376,7 +1387,6 @@
           equipment: checkedValues("equipment"),
           days: document.getElementById("days").value,
           minutes: document.getElementById("minutes").value,
-          recovery: document.getElementById("recovery").value,
           preferences: document.getElementById("preferences").value,
         };
       }
@@ -1406,18 +1416,19 @@
         const days = Math.max(1, Math.min(6, Number(a.days || 3)));
         const sport = (a.sports || []).join(", ") || "fitness generale";
         const tools = (a.equipment || []).join(", ") || "corpo libero";
-        const requestedTypes = a.trainingTypes?.length ? a.trainingTypes : ["Palestra forza", "Mobilità"];
+        const requestedTypes = a.trainingTypes?.length ? a.trainingTypes : ["Forza in palestra", "Mobilità e core"];
         const templates = [
-          ["Squat goblet", "Palestra forza", "Spingi le ginocchia in linea con i piedi, tronco stabile, scendi controllato.", "Ginocchia che collassano, schiena arrotondata, rimbalzo in basso.", "4", "8-10", "2", "3-1-1"],
-          ["Panca o push-up", "Palestra forza", "Scapole controllate, gomiti a circa 45 gradi, movimento fluido.", "Spalle alle orecchie, gomiti troppo larghi, bacino che cade.", "4", "8-12", "2", "2-1-1"],
-          ["Rematore", "Ipertrofia", "Tira il gomito verso il fianco, petto aperto, pausa breve in chiusura.", "Strappare con la schiena, spalle chiuse, collo contratto.", "4", "10-12", "1-2", "2-1-2"],
-          ["Affondo indietro", "Prevenzione infortuni", "Passo lungo, peso sul centro del piede, busto alto.", "Spinta solo sulla punta, ginocchio instabile, passo troppo corto.", "3", "8 per lato", "2", "3-1-1"],
-          ["Plank respirato", "Mobilità", "Costole giù, glutei attivi, collo neutro, respira senza perdere posizione.", "Bacino basso, trattenere il respiro, spalle chiuse.", "3", "30-45 sec", "3", "controllato"],
-          ["Romanian deadlift", "Palestra forza", "Anche indietro, schiena neutra, senti tensione sui femorali.", "Piegare troppo le ginocchia, arrotondare la schiena, carico lontano.", "4", "8-10", "2", "3-1-1"],
-          ["Corsa progressiva", "Corsa", "10 minuti facili, 12 minuti a ritmo medio, 6 allunghi da 20 secondi con recupero camminando.", "Partire troppo forte, irrigidire spalle, ignorare dolore a tendini o articolazioni.", "1", "28-35 min", "3", "ritmo conversazionale"],
-          ["Bici Z2 + sprint tecnici", "Bici", "Pedala fluido in zona facile, poi inserisci sprint brevi mantenendo cadenza e controllo.", "Rapporto troppo duro, bacino instabile, sprint lunghi e sporchi.", "1", "35-50 min", "3", "cadenza 85-95"],
-          ["Nuoto tecnica + aerobico", "Nuoto", "Alterna vasche tecniche e nuoto continuo facile, cercando assetto e respirazione regolare.", "Forzare la bracciata, perdere allineamento, recuperi troppo brevi.", "1", "900-1400 m", "3", "fluido"],
-          ["HIIT controllato", "HIIT", "Blocchi brevi ad alta intensità con tecnica pulita e recupero completo.", "Sacrificare tecnica per velocità, saltare riscaldamento, ignorare segnali di dolore.", "6", "30 sec forte / 60 sec facile", "2-3", "esplosivo controllato"],
+          ["Goblet squat con pausa", "Forza in palestra", "Scendi in 3 secondi, fermati un secondo in basso senza perdere assetto, poi risali spingendo il pavimento. Mantieni addome attivo, ginocchia allineate e carico vicino al petto.", "Scendere di fretta, chiudere le ginocchia verso l'interno, perdere neutro lombare, cercare profondità se compare dolore.", "4", "6-8", 120, "2", "3-1-1"],
+          ["Distensione manubri su panca neutra", "Forza in palestra", "Piedi stabili, scapole addotte e depresse, gomiti leggermente sotto la linea delle spalle. Spingi senza chiudere le spalle in avanti.", "Spalle alle orecchie, gomiti troppo larghi, rimbalzo in basso, carico scelto prima della tecnica.", "4", "6-10", 120, "2", "2-1-1"],
+          ["Rematore manubrio con fermo", "Ipertrofia", "Appoggia bene la mano, tira il gomito verso il fianco e resta fermo mezzo secondo in chiusura. Cerca dorsale, non slancio.", "Ruotare il busto, tirare col trapezio, perdere controllo nella discesa, respirare in apnea.", "4", "10-12 per lato", 90, "1-2", "2-1-2"],
+          ["Circuito metabolico tecnico", "Dimagrimento/metabolico", "Esegui squat a corpo libero, push-up inclinati e rematore elastico in circuito. Mantieni ritmo sostenibile: devi finire affaticato ma lucido.", "Trasformare il circuito in caos, accorciare il movimento, saltare recuperi, confondere fatica con qualità.", "4", "40 sec lavoro / 40 sec recupero", 80, "2-3", "controllato"],
+          ["Affondo indietro controllato", "Prevenzione infortuni", "Fai un passo indietro lungo, scendi verticale e risali spingendo dal piede davanti. Ottimo per controllo ginocchio-anca e trasferimento sportivo.", "Passo corto, ginocchio instabile, spinta solo di punta, bacino che ruota.", "3", "8 per lato", 90, "2", "3-1-1"],
+          ["Dead bug + respirazione", "Mobilità e core", "Schiena bassa stabile, costole giù, espira mentre distendi gamba e braccio opposti. Qualità prima della quantità.", "Inarcare la schiena, muoversi troppo veloce, perdere respirazione, tensione nel collo.", "3", "6-8 per lato", 45, "3", "lento"],
+          ["Corsa facile con allunghi", "Corsa base", "10 minuti facili, 15-25 minuti in ritmo conversazionale, poi 4-6 allunghi da 15-20 secondi recuperando camminando.", "Partire forte, correre rigido, trasformare gli allunghi in sprint massimali, ignorare fastidi tendinei.", "1", "30-45 min", 60, "3", "ritmo Z2"],
+          ["Ripetute brevi per sport di campo", "Corsa performance", "Riscaldati bene, poi alterna accelerazioni brevi e recuperi completi. Obiettivo: qualità di appoggio, postura e reattività.", "Fare volume quando cala la tecnica, recuperare troppo poco, irrigidire spalle e mandibola.", "8", "20 sec veloce / 70 sec facile", 70, "2-3", "veloce pulito"],
+          ["Bici aerobica + sprint neuromuscolari", "Bici", "Pedala fluido in zona facile, poi inserisci sprint molto brevi con recupero ampio. Cerca cadenza e controllo, non distruzione.", "Rapporto troppo duro, bacino che ondeggia, sprint lunghi, ginocchia fuori asse.", "1", "40-55 min", 90, "3", "85-95 rpm"],
+          ["Nuoto tecnica + continuo facile", "Nuoto", "Alterna vasche tecniche a nuoto continuo facile. Cura assetto, respirazione laterale e presa dell'acqua prima dell'intensità.", "Forzare la bracciata, sollevare troppo la testa, perdere allineamento, recuperi casuali.", "1", "900-1500 m", 45, "3", "fluido"],
+          ["HIIT a basso impatto", "HIIT", "Blocchi intensi ma tecnici: bike, camminata in salita, battle rope o esercizi a basso impatto. Il recupero serve a ripetere qualità.", "Saltare riscaldamento, sacrificare tecnica, scegliere esercizi irritanti per articolazioni, recuperare poco.", "6", "30 sec forte / 75 sec facile", 75, "2-3", "esplosivo controllato"],
         ];
         const chosen = templates.filter((item) => requestedTypes.includes(item[1]));
         const pool = chosen.length ? chosen : templates;
@@ -1440,9 +1451,9 @@
               commonErrors: item[3],
               sets: item[4],
               reps: item[5],
-              rest: Number(a.recovery || 90),
-              rir: item[6],
-              tut: item[7],
+              rest: Number(item[6] || 90),
+              rir: item[7],
+              tut: item[8],
               load: "",
               notes: "",
               completed: false,
@@ -1452,6 +1463,7 @@
       }
 
       async function askAi(task, payload) {
+        if (location.protocol === "file:") return localAi(task, payload);
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1459,6 +1471,39 @@
         });
         if (!response.ok) throw new Error("AI non disponibile");
         return response.json();
+      }
+
+      function localAi(task, payload = {}) {
+        if (task === "generate_plan") return { plan: defaultPlan(payload.focus || "") };
+        if (task === "swap_exercise") {
+          const reason = payload.reason || "richiesta di variante";
+          return {
+            exercise: {
+              name: "Variante tecnica personalizzata",
+              type: payload.exercise?.type || "Forza in palestra",
+              description: `Sostituzione prudente per: ${reason}. Mantieni lo stesso schema motorio, riduci carico iniziale del 10-20% e lavora solo in range senza dolore.`,
+              commonErrors: "Cambiare esercizio ma mantenere lo stesso dolore, aumentare subito il carico, perdere controllo del movimento.",
+              sets: payload.exercise?.sets || "3",
+              reps: payload.exercise?.reps || "8-12",
+              rest: payload.exercise?.rest || 90,
+              rir: payload.exercise?.rir || "2-3",
+              tut: payload.exercise?.tut || "3-1-1",
+              load: "",
+              notes: "Fallback locale: su Vercel Andrea IA userà Anthropic per una variante più precisa.",
+              completed: false,
+            },
+          };
+        }
+        if (task === "workout_feedback") {
+          const done = payload.day?.exercises?.filter((ex) => ex.completed).length || 0;
+          const total = payload.day?.exercises?.length || 0;
+          return {
+            suggestion: `Hai completato ${done}/${total} esercizi. Se tecnica e recupero erano buoni, nella prossima seduta aumenta poco il carico o una serie solo sugli esercizi con RIR alto. Se hai avuto dolore o fatica eccessiva, mantieni i carichi, alza i recuperi e chiedi confronto ad Andrea.`,
+          };
+        }
+        return {
+          reply: "In anteprima locale posso darti una risposta di base. Per Andrea IA completa pubblica su Vercel con ANTHROPIC_API_KEY. Regola pratica: se compare dolore, sintomi o dubbio clinico, interrompi e chiedi valutazione medica o scrivi ad Andrea: humanperformancelab.app@gmail.com",
+        };
       }
 
       async function generatePlan() {
@@ -1477,7 +1522,7 @@
           user.plans.push(normalizePlan(result.plan || defaultPlan(focus), focus));
         } catch {
           user.plans = user.plans || [];
-          user.plans.push(defaultPlan(focus));
+          user.plans.push(normalizePlan(localAi("generate_plan", { focus }).plan, focus));
         } finally {
           saveState();
           clearBusy("generatePlanBtn", "Genera con AI");
@@ -1503,8 +1548,8 @@
               commonErrors: ex.commonErrors || "Evitare compensi, fretta e dolore.",
               sets: ex.sets || "3",
               reps: ex.reps || "8-12",
-              rest: Number(ex.rest || currentUser().anamnesis?.recovery || 90),
-              type: ex.type || day.focus || "Palestra forza",
+              rest: Number(ex.rest || 90),
+              type: ex.type || day.focus || "Forza in palestra",
               rir: ex.rir || "2",
               tut: ex.tut || "2-1-1",
               load: ex.load || "",
@@ -1560,7 +1605,7 @@
 
       function renderExercise(ex, dayIndex, exIndex) {
         return `
-          <details class="exercise ${ex.completed ? "done" : ""}" ${ex.completed ? "" : "open"}>
+          <details class="exercise ${ex.completed ? "done" : ""}">
             <summary>${escapeHtml(ex.name)} <span class="tag">${escapeHtml(ex.type || "Palestra")}</span></summary>
             <p><strong>Descrizione:</strong> ${escapeHtml(ex.description)}</p>
             <p><strong>Errori comuni:</strong> ${escapeHtml(ex.commonErrors)}</p>
@@ -1700,7 +1745,7 @@
             Object.assign(ex, {
               id: uid(),
               name: "Alternativa controllata",
-              type: ex.type || "Palestra forza",
+              type: ex.type || "Forza in palestra",
               description: "Scegli una variante simile con ROM indolore, carico moderato e tecnica stabile.",
               commonErrors: "Non forzare il dolore, non aumentare carico se la tecnica peggiora.",
               sets: ex.sets,
@@ -1802,10 +1847,7 @@
           });
           user.messages.push({ role: "assistant", text: result.reply });
         } catch {
-          user.messages.push({
-            role: "assistant",
-            text: "Posso darti un orientamento generale, ma in questo momento l’AI non è collegata. Se hai dolore, sintomi o dubbi clinici, interrompi l’attività e consulta un medico o Andrea: humanperformancelab.app@gmail.com",
-          });
+          user.messages.push({ role: "assistant", text: localAi("chat", { question: text }).reply });
         }
         saveState();
         renderMessages();
@@ -1815,7 +1857,7 @@
         persistPlanInputs();
         const plan = latestPlan();
         if (!plan) return;
-        document.getElementById("printArea").innerHTML = `
+        const html = `
           <h1>Andrea Bertelli - ${escapeHtml(plan.title)}</h1>
           <p>${escapeHtml(plan.summary || "")}</p>
           <p><strong>Disclaimer:</strong> ${escapeHtml(plan.disclaimer || "")}</p>
@@ -1831,6 +1873,32 @@
           `).join("")}
           <p>Contatto: humanperformancelab.app@gmail.com</p>
         `;
+        const printable = `
+          <!doctype html>
+          <html lang="it">
+            <head>
+              <meta charset="utf-8">
+              <title>${escapeHtml(plan.title)} - PDF</title>
+              <style>
+                body { font-family: Arial, sans-serif; color: #111; line-height: 1.45; padding: 28px; }
+                h1 { font-size: 30px; }
+                h2 { border-top: 2px solid #111; padding-top: 16px; margin-top: 24px; }
+                h3 { margin-bottom: 4px; }
+                p { margin: 6px 0 12px; }
+                strong { font-weight: 800; }
+                @media print { body { padding: 0; } }
+              </style>
+            </head>
+            <body>${html}<script>window.onload = () => setTimeout(() => window.print(), 300);<\/script></body>
+          </html>
+        `;
+        const win = window.open("", "_blank");
+        if (win) {
+          win.document.write(printable);
+          win.document.close();
+          return;
+        }
+        document.getElementById("printArea").innerHTML = html;
         window.print();
       }
 
@@ -1858,19 +1926,15 @@
 
       document.getElementById("loginTab").onclick = () => setAuthMode("login");
       document.getElementById("registerTab").onclick = () => setAuthMode("register");
-      document.getElementById("isCoach").onchange = (event) => {
-        document.getElementById("coachCodeWrap").classList.toggle("hidden", !event.target.checked);
-      };
 
       document.getElementById("authForm").onsubmit = async (event) => {
         event.preventDefault();
         const email = document.getElementById("authEmail").value.trim().toLowerCase();
         const passwordHash = await hashPassword(document.getElementById("authPassword").value);
-        const wantsCoach = document.getElementById("isCoach").checked;
         let justRegistered = false;
         if (mode === "register") {
           if (state.users.some((user) => user.email === email)) return alert("Email già registrata.");
-          const role = wantsCoach && document.getElementById("coachCode").value === COACH_CODE ? "coach" : "client";
+          const role = COACH_EMAILS.includes(email) ? "coach" : "client";
           const user = {
             id: uid(),
             name: document.getElementById("authName").value.trim(),
@@ -1888,6 +1952,7 @@
         } else {
           const user = state.users.find((item) => item.email === email && item.passwordHash === passwordHash);
           if (!user) return alert("Credenziali non trovate. Registrati prima.");
+          if (COACH_EMAILS.includes(email)) user.role = "coach";
           currentUserId = user.id;
         }
         saveState();
@@ -1915,7 +1980,8 @@
         currentUser().anamnesis = readAnamnesis();
         saveState();
         renderDashboard();
-        alert("Anamnesi salvata.");
+        switchSection("scheda");
+        generatePlan();
       };
 
       document.getElementById("generatePlanBtn").onclick = generatePlan;
