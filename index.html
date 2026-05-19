@@ -1182,6 +1182,7 @@
                 <button id="generatePlanBtn" class="btn brand" type="button">Genera con AI</button>
                 <button id="printPlanBtn" class="btn secondary" type="button">Scarica PDF</button>
               </div>
+              <p id="planStatus" class="muted" style="margin-top: 10px"></p>
               <p class="muted">
                 Si apre una versione stampabile: scegli “Salva come PDF”.
               </p>
@@ -1345,7 +1346,19 @@
       }
 
       function currentUser() {
-        return state.users.find((user) => user.id === currentUserId);
+        const user = state.users.find((item) => item.id === currentUserId);
+        return ensureUserShape(user);
+      }
+
+      function ensureUserShape(user) {
+        if (!user) return user;
+        if (!user.name) user.name = user.email || "Cliente";
+        if (!user.role) user.role = COACH_EMAILS.includes(String(user.email || "").toLowerCase()) ? "coach" : "client";
+        if (!user.anamnesis || typeof user.anamnesis !== "object" || Array.isArray(user.anamnesis)) user.anamnesis = {};
+        if (!Array.isArray(user.plans)) user.plans = [];
+        if (!Array.isArray(user.progress)) user.progress = [];
+        if (!Array.isArray(user.messages)) user.messages = [];
+        return user;
       }
 
       async function hashPassword(value) {
@@ -1764,13 +1777,18 @@
 
       async function generatePlan() {
         const user = currentUser();
+        if (!user) return;
         user.anamnesis = readAnamnesis();
         const focus = document.getElementById("planFocus").value;
+        const status = document.getElementById("planStatus");
+        if (status) status.textContent = "Sto costruendo la scheda con il motore CoachAI...";
         setBusy("generatePlanBtn", "Generazione...");
         let exerciseDatabase = [];
+        let generatedPlan = null;
         try {
           const db = await loadExerciseDatabase();
           exerciseDatabase = db.length ? selectRelevantExercises(db, user.anamnesis) : [];
+          if (status) status.textContent = `Database esercizi caricato: ${exerciseDatabase.length || "fallback"} esercizi utili. Creo la bozza tecnica...`;
           const draft = await buildProgramDraft({
             user: { name: user.name },
             anamnesis: user.anamnesis,
@@ -1778,6 +1796,7 @@
             focus,
             exerciseDatabase,
           });
+          if (status) status.textContent = "Bozza tecnica pronta. Rifinisco con Andrea IA...";
           const result = await askAi("generate_plan", {
             user: { name: user.name },
             anamnesis: user.anamnesis,
@@ -1786,16 +1805,24 @@
             exerciseDatabase,
             programDraft: draft.plan,
           });
-          user.plans = user.plans || [];
-          user.plans.push(normalizePlan(result.plan || draft.plan || defaultPlan(focus), focus));
-        } catch {
-          user.plans = user.plans || [];
-          user.plans.push(normalizePlan(localAi("generate_plan", { focus, exerciseDatabase }).plan, focus));
+          generatedPlan = normalizePlan(result.plan || draft.plan || defaultPlan(focus), focus);
+        } catch (error) {
+          console.error("Errore generazione scheda", error);
+          if (status) status.textContent = "Uso la generazione locale di sicurezza...";
+          generatedPlan = normalizePlan(localAi("generate_plan", { focus, exerciseDatabase }).plan, focus);
         } finally {
+          user.plans = Array.isArray(user.plans) ? user.plans : [];
+          if (generatedPlan) user.plans.push(generatedPlan);
           saveState();
           clearBusy("generatePlanBtn", "Genera con AI");
-          renderPlan();
-          renderDashboard();
+          try {
+            renderPlan();
+            renderDashboard();
+            if (status) status.textContent = generatedPlan ? "Scheda generata." : "Non sono riuscito a generare la scheda. Controlla i dati del profilo e riprova.";
+          } catch (error) {
+            console.error("Errore visualizzazione scheda", error);
+            if (status) status.textContent = "Scheda creata, ma c'è un problema di visualizzazione. Prova Pulisci dati profilo o ricarica la pagina.";
+          }
         }
       }
 
