@@ -1,10 +1,10 @@
-# Andrea Bertelli Fitness AI Lab
+# CoachAI Andrea Bertelli
 
 Prima versione della web app per generare schede fitness/palestra personalizzate con AI.
 
 ## File inclusi
 
-- `index.html`: app completa lato browser con registrazione locale, anamnesi, progressi, storico schede, pannello coach/admin, timer recupero, chat Andrea IA, privacy/cookie banner e stampa PDF.
+- `index.html`: app completa lato browser con registrazione, anamnesi, progressi, storico schede, pannello coach/admin, timer recupero, chat Andrea IA, privacy/cookie banner e stampa PDF.
 - `api/chat.js`: funzione serverless Vercel che usa Anthropic per generare schede, risposte chat e cambi esercizio.
 - `vercel.json`: routing per Vercel.
 
@@ -24,14 +24,14 @@ ANTHROPIC_MODEL=claude-3-5-sonnet-latest
 In questa versione i dati sono salvati nel browser con `localStorage`.
 
 - Registra un utente.
-- Spunta `Sono Andrea / coach`.
-- Usa codice: `AB-COACH`.
+- Registrati o accedi con `humanperformancelab.app@gmail.com`.
+- L'app assegna automaticamente il ruolo coach/admin a quell'email.
 
 Per produzione servono autenticazione server-side e database, ad esempio Supabase, Neon/Postgres, Firebase o Vercel Postgres.
 
 ## PDF
 
-Il pulsante `Download PDF` apre la stampa del browser. Seleziona `Salva come PDF`.
+Il pulsante `Scarica PDF` apre una versione stampabile. Seleziona `Salva come PDF`.
 
 ## Note privacy e sicurezza
 

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "goblet-squat-pausa",
+    "name": "Goblet squat con pausa",
+    "category": "Forza in palestra",
+    "movementPattern": "squat",
+    "sportTransfer": ["calcio", "tennis", "basket", "padel"],
+    "equipment": ["manubri", "kettlebell"],
+    "level": ["principiante", "intermedio"],
+    "goal": ["forza", "ipertrofia", "performance sportiva"],
+    "sets": "4",
+    "reps": "6-8",
+    "restSeconds": 120,
+    "rir": "2",
+    "tut": "3-1-1",
+    "description": "Scendi in 3 secondi, fermati un secondo in basso senza perdere assetto, poi risali spingendo il pavimento.",
+    "commonErrors": "Ginocchia che collassano, schiena arrotondata, rimbalzo in basso, carico troppo lontano.",
+    "contraindications": ["dolore acuto ginocchio", "dolore lombare non valutato"],
+    "regression": "Squat a box a corpo libero",
+    "progression": "Front squat o goblet squat piu' pesante"
+  },
+  {
+    "id": "corsa-facile-allunghi",
+    "name": "Corsa facile con allunghi",
+    "category": "Corsa base",
+    "movementPattern": "endurance",
+    "sportTransfer": ["calcio", "tennis", "running", "padel"],
+    "equipment": ["corpo libero", "tapis roulant"],
+    "level": ["principiante", "intermedio", "avanzato"],
+    "goal": ["dimagrimento", "performance sportiva", "benessere"],
+    "sets": "1",
+    "reps": "30-45 min",
+    "restSeconds": 60,
+    "rir": "3",
+    "tut": "ritmo Z2",
+    "description": "10 minuti facili, 15-25 minuti in ritmo conversazionale, poi 4-6 allunghi da 15-20 secondi.",
+    "commonErrors": "Partire forte, correre rigido, trasformare gli allunghi in sprint massimali.",
+    "contraindications": ["dolore tendine achille", "dolore ginocchio in carico"],
+    "regression": "Run-walk 2 minuti corsa e 1 minuto cammino",
+    "progression": "Tempo run controllato"
+  }
+]

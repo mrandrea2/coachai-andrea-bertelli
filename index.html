@@ -557,24 +557,56 @@
 
       .cookie-banner {
         position: fixed;
-        left: 18px;
-        right: 18px;
-        bottom: 18px;
+        left: 50%;
+        right: auto;
+        bottom: 22px;
+        transform: translateX(-50%);
+        width: min(980px, calc(100vw - 28px));
         z-index: 20;
-        background: #101312;
-        color: #fff;
-        border: 3px solid var(--accent);
+        background: #fff;
+        color: var(--ink);
+        border: 3px solid var(--ink);
         border-radius: var(--radius);
-        padding: 18px;
+        padding: 14px 16px;
         box-shadow: var(--shadow);
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 14px;
         align-items: center;
+        font-size: 13px;
+      }
+
+      .cookie-banner h3 {
+        margin: 0 0 4px;
+        font-size: 16px;
       }
 
       .cookie-banner p {
         margin: 0;
+        line-height: 1.28;
+      }
+
+      .cookie-banner a {
+        color: var(--brand-dark);
+      }
+
+      .cookie-actions {
+        display: grid;
+        gap: 7px;
+        min-width: 180px;
+      }
+
+      .cookie-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 900;
       }
 
       .modal {
@@ -868,12 +900,21 @@
           left: 10px;
           right: 10px;
           bottom: 10px;
-          padding: 12px;
-          font-size: 14px;
+          transform: none;
+          width: auto;
+          padding: 10px 12px;
+          font-size: 12px;
+          grid-template-columns: 1fr;
         }
 
         .cookie-banner .btn {
-          min-height: 42px;
+          min-height: 38px;
+          font-size: 13px;
+          padding: 9px 10px;
+        }
+
+        .cookie-actions {
+          min-width: 0;
         }
 
         .auth-screen {
@@ -1228,10 +1269,11 @@
             <div class="panel">
               <h3>Cookie e AI</h3>
               <p>
-                Il banner cookie viene mostrato a ogni apertura come richiesto. Le risposte AI sono
-                informative e non costituiscono prescrizione sanitaria. Non inviare dati sensibili se
-                non necessari.
+                I cookie tecnici sono necessari per far funzionare login, sessione e salvataggio locale.
+                I cookie o strumenti non essenziali vengono attivati solo dopo consenso. Le risposte AI
+                sono informative e non costituiscono prescrizione sanitaria. Non inviare dati sensibili se non necessari.
               </p>
+              <button id="resetCookieChoice" class="btn secondary" type="button">Modifica preferenze cookie</button>
             </div>
           </div>
         </section>
@@ -1245,17 +1287,25 @@
     </div>
 
     <div id="modal" class="modal hidden" role="dialog" aria-modal="true"></div>
-    <div id="cookieBanner" class="cookie-banner">
-      <p>
-        Usiamo dati tecnici/locali per far funzionare l’app e, se attivi l’AI, inviamo il testo
-        necessario al provider configurato. Banner mostrato a ogni apertura.
-      </p>
-      <button id="acceptCookies" class="btn" type="button">Ho capito</button>
+    <div id="cookieBanner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Preferenze cookie">
+      <button id="closeCookies" class="cookie-close" type="button" aria-label="Chiudi banner">×</button>
+      <div>
+        <h3>Preferenze cookie</h3>
+        <p>
+          Usiamo cookie essenziali per far funzionare l’app. Con consenso, anche cookie non essenziali
+          per migliorare il servizio. Puoi modificare la scelta in Privacy.
+        </p>
+      </div>
+      <div class="cookie-actions">
+        <button id="essentialCookies" class="btn secondary" type="button">Solo essenziali</button>
+        <button id="acceptCookies" class="btn brand" type="button">Accetta tutti</button>
+      </div>
     </div>
     <div id="printArea" class="print-area"></div>
 
     <script>
       const STORE_KEY = "abFitnessAiLab.v1";
+      const COOKIE_KEY = "coachAiCookieChoice.v1";
       const COACH_EMAILS = ["humanperformancelab.app@gmail.com"];
       const sports = ["Calcio", "Tennis", "Nuoto", "Pallavolo", "Basket", "Ciclismo", "Running", "Padel", "Rugby", "Sci", "Altro"];
       const trainingTypes = [
@@ -1322,6 +1372,16 @@
         document.querySelectorAll(`input[name="${name}"]`).forEach((el) => {
           el.checked = values.includes(el.value);
         });
+      }
+
+      function saveCookieChoice(choice) {
+        localStorage.setItem(COOKIE_KEY, JSON.stringify({ choice, savedAt: new Date().toISOString() }));
+        document.getElementById("cookieBanner").classList.add("hidden");
+      }
+
+      function initCookieBanner() {
+        const saved = localStorage.getItem(COOKIE_KEY);
+        document.getElementById("cookieBanner").classList.toggle("hidden", Boolean(saved));
       }
 
       function renderChecks() {
@@ -1417,21 +1477,68 @@
         const sport = (a.sports || []).join(", ") || "fitness generale";
         const tools = (a.equipment || []).join(", ") || "corpo libero";
         const requestedTypes = a.trainingTypes?.length ? a.trainingTypes : ["Forza in palestra", "Mobilità e core"];
-        const templates = [
+        const exerciseLibrary = [
           ["Goblet squat con pausa", "Forza in palestra", "Scendi in 3 secondi, fermati un secondo in basso senza perdere assetto, poi risali spingendo il pavimento. Mantieni addome attivo, ginocchia allineate e carico vicino al petto.", "Scendere di fretta, chiudere le ginocchia verso l'interno, perdere neutro lombare, cercare profondità se compare dolore.", "4", "6-8", 120, "2", "3-1-1"],
           ["Distensione manubri su panca neutra", "Forza in palestra", "Piedi stabili, scapole addotte e depresse, gomiti leggermente sotto la linea delle spalle. Spingi senza chiudere le spalle in avanti.", "Spalle alle orecchie, gomiti troppo larghi, rimbalzo in basso, carico scelto prima della tecnica.", "4", "6-10", 120, "2", "2-1-1"],
+          ["Trap bar deadlift o stacco da rialzi", "Forza in palestra", "Parti con tibie quasi verticali, spingi il pavimento e tieni il carico vicino. Variante utile se vuoi forza senza stressare troppo la schiena.", "Partire strappando, arrotondare in partenza, chiudere le spalle, aumentare carico senza controllo.", "4", "5-6", 150, "2", "2-1-1"],
+          ["Military press mezzo inginocchio", "Forza in palestra", "Una gamba avanti, gluteo della gamba posteriore attivo, spingi sopra la testa senza inarcare la zona lombare.", "Compensare con schiena, spingere davanti al viso, perdere costole giù, forzare se la spalla dà fastidio.", "3", "6-8 per lato", 105, "2", "2-1-1"],
+          ["Lat machine presa neutra", "Forza in palestra", "Porta i gomiti verso le tasche, petto alto e controllo in risalita. Fermati prima di perdere assetto scapolare.", "Tirare dietro il collo, slanciare il busto, chiudere il collo, usare solo braccia.", "4", "8-10", 105, "2", "2-1-2"],
           ["Rematore manubrio con fermo", "Ipertrofia", "Appoggia bene la mano, tira il gomito verso il fianco e resta fermo mezzo secondo in chiusura. Cerca dorsale, non slancio.", "Ruotare il busto, tirare col trapezio, perdere controllo nella discesa, respirare in apnea.", "4", "10-12 per lato", 90, "1-2", "2-1-2"],
+          ["Leg press piedi medi", "Ipertrofia", "Scendi fin dove il bacino resta stabile, spingi senza bloccare violentemente le ginocchia. Mantieni tensione continua.", "Scendere troppo perdendo bacino, rimbalzare, chiudere ginocchia, staccare talloni.", "4", "10-15", 105, "1-2", "3-0-1"],
+          ["Alzate laterali meccaniche", "Ipertrofia", "Parti con alzate laterali pulite, poi riduci ROM solo quando serve. Pensa a portare i gomiti larghi, non le mani in alto.", "Slancio lombare, trapezio dominante, polsi piegati, carico eccessivo.", "3", "12-18", 60, "1-2", "2-1-2"],
+          ["Hip thrust con fermo", "Ipertrofia", "Retroversione del bacino in alto, fermo di un secondo e discesa controllata. Cerca glutei, non lombari.", "Iperestendere la schiena, piedi troppo avanti, chiudere ginocchia, rimbalzare.", "4", "8-12", 105, "1-2", "2-1-2"],
           ["Circuito metabolico tecnico", "Dimagrimento/metabolico", "Esegui squat a corpo libero, push-up inclinati e rematore elastico in circuito. Mantieni ritmo sostenibile: devi finire affaticato ma lucido.", "Trasformare il circuito in caos, accorciare il movimento, saltare recuperi, confondere fatica con qualità.", "4", "40 sec lavoro / 40 sec recupero", 80, "2-3", "controllato"],
+          ["EMOM qualità full body", "Dimagrimento/metabolico", "Ogni minuto alterna hinge leggero, spinta, tirata e core. Se la tecnica cala, riduci ripetizioni, non sporcare il gesto.", "Scegliere carichi troppo alti, arrivare sempre al limite, perdere respirazione.", "12", "1 blocco/minuto", 60, "2-3", "ritmico"],
+          ["Camminata inclinata progressiva", "Dimagrimento/metabolico", "Aumenta gradualmente pendenza o passo restando in controllo respiratorio. Ottima nei giorni di recupero attivo.", "Aggrapparsi al tapis roulant, passo troppo lungo, pendenza troppo aggressiva.", "1", "20-35 min", 45, "3", "Z2-Z3"],
           ["Affondo indietro controllato", "Prevenzione infortuni", "Fai un passo indietro lungo, scendi verticale e risali spingendo dal piede davanti. Ottimo per controllo ginocchio-anca e trasferimento sportivo.", "Passo corto, ginocchio instabile, spinta solo di punta, bacino che ruota.", "3", "8 per lato", 90, "2", "3-1-1"],
+          ["Step down laterale", "Prevenzione infortuni", "Scendi lentamente da un rialzo basso controllando ginocchio, anca e piede. Tocca il tallone a terra senza crollare.", "Ginocchio che cade dentro, bacino che scappa, rialzo troppo alto, velocità eccessiva.", "3", "6-8 per lato", 75, "2-3", "3-1-1"],
+          ["Extrarotazioni elastico", "Prevenzione infortuni", "Gomito vicino al fianco, scapola stabile, ruota senza compensare col busto. Utile per spalle e sport di racchetta/lancio.", "Gomito lontano, polso piegato, elastico troppo duro, movimento rapido.", "3", "12-15", 45, "3", "2-1-2"],
           ["Dead bug + respirazione", "Mobilità e core", "Schiena bassa stabile, costole giù, espira mentre distendi gamba e braccio opposti. Qualità prima della quantità.", "Inarcare la schiena, muoversi troppo veloce, perdere respirazione, tensione nel collo.", "3", "6-8 per lato", 45, "3", "lento"],
+          ["90/90 anca attivo", "Mobilità e core", "Alterna rotazioni d'anca controllate, busto alto e respirazione lenta. Lavora sulla mobilità senza forzare il ginocchio.", "Spingere con le mani, sentire dolore al ginocchio, collassare col busto.", "3", "6 transizioni lente", 40, "3", "lento"],
+          ["Side plank con abduzione", "Mobilità e core", "Mantieni bacino alto, costole giù e solleva la gamba superiore senza ruotare. Ottimo per controllo anca-bacino.", "Bacino che scende, spalla compressa, movimento veloce, compenso lombare.", "3", "20-30 sec per lato", 45, "2-3", "isometrico"],
           ["Corsa facile con allunghi", "Corsa base", "10 minuti facili, 15-25 minuti in ritmo conversazionale, poi 4-6 allunghi da 15-20 secondi recuperando camminando.", "Partire forte, correre rigido, trasformare gli allunghi in sprint massimali, ignorare fastidi tendinei.", "1", "30-45 min", 60, "3", "ritmo Z2"],
+          ["Corsa run-walk", "Corsa base", "Alterna corsa facile e cammino veloce per costruire volume senza accumulare troppa fatica. Ideale se riparti o hai poca base.", "Correre le fasi facili troppo forte, saltare cammino, aumentare durata ogni seduta.", "8-12", "2 min corsa / 1 min cammino", 30, "3", "facile"],
+          ["Tecnica corsa: skip e appoggi", "Corsa base", "Inserisci skip basso, calciata leggera e appoggi rapidi dopo riscaldamento. L'obiettivo è coordinazione, non fatica.", "Fare drill stanchi, appoggi rumorosi, busto arretrato, rigidità spalle.", "3", "20 m per drill", 45, "3", "tecnico"],
           ["Ripetute brevi per sport di campo", "Corsa performance", "Riscaldati bene, poi alterna accelerazioni brevi e recuperi completi. Obiettivo: qualità di appoggio, postura e reattività.", "Fare volume quando cala la tecnica, recuperare troppo poco, irrigidire spalle e mandibola.", "8", "20 sec veloce / 70 sec facile", 70, "2-3", "veloce pulito"],
+          ["Tempo run controllato", "Corsa performance", "Dopo riscaldamento, corri un blocco a ritmo sostenuto ma gestibile. Devi poter chiudere forte senza crollare.", "Trasformarlo in gara, partire sopra soglia, ignorare tecnica quando sale la fatica.", "1", "12-22 min", 90, "2", "sostenuto"],
+          ["Cambi direzione reattivi", "Corsa performance", "Sprint brevi con frenata e ripartenza. Cura abbassamento del baricentro, appoggio silenzioso e recupero completo.", "Frenare rigido, ginocchio in valgo, troppe ripetizioni, terreno scivoloso.", "6-10", "5-8 sec", 75, "2-3", "esplosivo"],
           ["Bici aerobica + sprint neuromuscolari", "Bici", "Pedala fluido in zona facile, poi inserisci sprint molto brevi con recupero ampio. Cerca cadenza e controllo, non distruzione.", "Rapporto troppo duro, bacino che ondeggia, sprint lunghi, ginocchia fuori asse.", "1", "40-55 min", 90, "3", "85-95 rpm"],
+          ["Bici sweet spot", "Bici", "Blocchi a intensità medio-alta ma sostenibile. Respiri forte, ma resti ordinato e costante.", "Partire troppo alto, cadenza irregolare, recuperi accorciati, postura chiusa.", "3", "6-8 min", 180, "2", "costante"],
+          ["Bici recupero attivo", "Bici", "Seduta facile per favorire circolazione e recupero. Deve lasciarti meglio di come hai iniziato.", "Trasformarla in allenamento duro, rapporto pesante, cadenza bassa.", "1", "25-45 min", 45, "4", "facile"],
           ["Nuoto tecnica + continuo facile", "Nuoto", "Alterna vasche tecniche a nuoto continuo facile. Cura assetto, respirazione laterale e presa dell'acqua prima dell'intensità.", "Forzare la bracciata, sollevare troppo la testa, perdere allineamento, recuperi casuali.", "1", "900-1500 m", 45, "3", "fluido"],
+          ["Nuoto intervalli aerobici", "Nuoto", "Serie regolari con recupero breve e qualità tecnica stabile. Mantieni la stessa nuotata dall'inizio alla fine.", "Partire forte, accorciare bracciata, respirare in ritardo, recuperare a caso.", "8", "50-100 m", 30, "2-3", "costante"],
+          ["Nuoto gambe e assetto", "Nuoto", "Lavora con tavoletta o posizione streamline per migliorare assetto e battuta. Volume moderato, tecnica alta.", "Rigidità cervicale, battuta solo dal ginocchio, perdere allineamento.", "6", "25-50 m", 30, "3", "tecnico"],
           ["HIIT a basso impatto", "HIIT", "Blocchi intensi ma tecnici: bike, camminata in salita, battle rope o esercizi a basso impatto. Il recupero serve a ripetere qualità.", "Saltare riscaldamento, sacrificare tecnica, scegliere esercizi irritanti per articolazioni, recuperare poco.", "6", "30 sec forte / 75 sec facile", 75, "2-3", "esplosivo controllato"],
+          ["HIIT forza resistente", "HIIT", "Alterna spinte, tirate e gambe con carichi leggeri. Obiettivo: densità e qualità, non cedimento.", "Carico troppo alto, tecnica che degrada, recuperi troppo brevi, esercizi scelti a caso.", "5", "45 sec lavoro / 75 sec recupero", 75, "2", "controllato"],
+          ["Finisher intervalli bike", "HIIT", "Chiudi con intervalli brevi su bike o vogatore. Intensità alta ma ripetibile, senza perdere postura.", "Massacrare le prime ripetute, cadenza disordinata, recupero incompleto.", "8", "15 sec forte / 45 sec facile", 45, "2-3", "potente"],
         ];
-        const chosen = templates.filter((item) => requestedTypes.includes(item[1]));
-        const pool = chosen.length ? chosen : templates;
+        const chosen = exerciseLibrary.filter((item) => requestedTypes.includes(item[1]));
+        const pool = chosen.length ? chosen : exerciseLibrary;
+        const complementary = exerciseLibrary.filter((item) => !requestedTypes.includes(item[1]));
+        const minutes = Number(a.minutes || 60);
+        const targetBlocks = minutes >= 75 ? 8 : minutes >= 55 ? 7 : minutes >= 40 ? 6 : 5;
+        const used = new Set();
+        function pickBlocks(dayIndex) {
+          const source = [...pool, ...complementary];
+          const picked = [];
+          let cursor = dayIndex * targetBlocks;
+          while (picked.length < targetBlocks && picked.length < source.length) {
+            const item = source[cursor % source.length];
+            cursor += 1;
+            const key = `${item[0]}-${dayIndex}`;
+            if (!picked.some((entry) => entry[0] === item[0]) && !used.has(item[0])) {
+              picked.push(item);
+              used.add(item[0]);
+            }
+          }
+          cursor = dayIndex;
+          while (picked.length < targetBlocks) {
+            const item = source[cursor % source.length];
+            cursor += 1;
+            if (!picked.some((entry) => entry[0] === item[0])) picked.push(item);
+          }
+          return picked;
+        }
         return {
           id: uid(),
           title: `CoachAI - ${a.goal || "scheda personalizzata"} - ${sport}`,
@@ -1443,7 +1550,7 @@
             focus: requestedTypes[dayIndex % requestedTypes.length] || (dayIndex % 2 === 0 ? "Forza tecnica e controllo" : "Resistenza muscolare e mobilità"),
             sessionFeedback: "",
             aiSuggestion: "",
-            exercises: Array.from({ length: Math.min(5, pool.length) }, (_, idx) => pool[(dayIndex + idx) % pool.length]).map((item) => ({
+            exercises: pickBlocks(dayIndex).map((item) => ({
               id: uid(),
               name: item[0],
               type: item[1],
@@ -1474,7 +1581,10 @@
       }
 
       function localAi(task, payload = {}) {
-        if (task === "generate_plan") return { plan: defaultPlan(payload.focus || "") };
+        if (task === "generate_plan") {
+          if (payload.exerciseDatabase?.length) return { plan: planFromExerciseDatabase(payload.focus || "", payload.exerciseDatabase) };
+          return { plan: defaultPlan(payload.focus || "") };
+        }
         if (task === "swap_exercise") {
           const reason = payload.reason || "richiesta di variante";
           return {
@@ -1506,23 +1616,119 @@
         };
       }
 
+      async function loadExerciseDatabase() {
+        if (location.protocol === "file:") return [];
+        try {
+          const response = await fetch("data/coachai-exercises.json");
+          if (!response.ok) return [];
+          return response.json();
+        } catch {
+          return [];
+        }
+      }
+
+      function selectRelevantExercises(db, anamnesis) {
+        const selectedTypes = anamnesis.trainingTypes || [];
+        const selectedEquipment = anamnesis.equipment || [];
+        const level = anamnesis.level || "";
+        const exact = db.filter((ex) => {
+          const typeOk = !selectedTypes.length || selectedTypes.includes(ex.category);
+          const equipmentOk = !selectedEquipment.length || ex.equipment?.some((item) => selectedEquipment.includes(item));
+          const levelOk = !level || ex.level?.includes(level) || ex.level?.includes("Principiante");
+          return typeOk && equipmentOk && levelOk;
+        });
+        const broader = db.filter((ex) => {
+          const typeOk = !selectedTypes.length || selectedTypes.includes(ex.category);
+          const equipmentOk = !selectedEquipment.length || ex.equipment?.some((item) => selectedEquipment.includes(item)) || ex.equipment?.includes("Corpo libero");
+          return typeOk && equipmentOk;
+        });
+        const fallback = db.filter((ex) => ex.equipment?.includes("Corpo libero") || ex.category === "Mobilita e core");
+        const merged = [...exact, ...broader, ...fallback];
+        const seen = new Set();
+        return merged.filter((ex) => {
+          if (seen.has(ex.id)) return false;
+          seen.add(ex.id);
+          return true;
+        }).slice(0, 90);
+      }
+
+      function planFromExerciseDatabase(focus = "", exerciseDatabase = []) {
+        const user = currentUser();
+        const a = user.anamnesis || {};
+        const days = Math.max(1, Math.min(6, Number(a.days || 3)));
+        const minutes = Number(a.minutes || 60);
+        const targetBlocks = minutes >= 75 ? 8 : minutes >= 55 ? 7 : minutes >= 40 ? 6 : 5;
+        const sport = (a.sports || []).join(", ") || "fitness generale";
+        const used = new Set();
+        function pick(dayIndex) {
+          const picked = [];
+          let cursor = dayIndex * targetBlocks;
+          while (picked.length < targetBlocks && picked.length < exerciseDatabase.length) {
+            const ex = exerciseDatabase[cursor % exerciseDatabase.length];
+            cursor += 1;
+            if (!used.has(ex.id)) {
+              picked.push(ex);
+              used.add(ex.id);
+            }
+          }
+          cursor = 0;
+          while (picked.length < targetBlocks && exerciseDatabase.length) {
+            const ex = exerciseDatabase[cursor % exerciseDatabase.length];
+            cursor += 1;
+            if (!picked.some((item) => item.id === ex.id)) picked.push(ex);
+          }
+          return picked;
+        }
+        return {
+          id: uid(),
+          title: `CoachAI - ${a.goal || "scheda personalizzata"} - ${sport}`,
+          createdAt: new Date().toISOString(),
+          disclaimer: "Scheda informativa. In caso di dolore, patologie o sintomi interrompi e consulta un medico o Andrea.",
+          summary: `Programma generato dal database esercizi: ${days} sedute, ${minutes} minuti circa. Focus: ${focus || a.goal || "miglioramento generale"}.`,
+          days: Array.from({ length: days }, (_, dayIndex) => ({
+            name: `Allenamento ${dayIndex + 1}`,
+            focus: a.trainingTypes?.[dayIndex % (a.trainingTypes.length || 1)] || "Seduta personalizzata",
+            sessionFeedback: "",
+            aiSuggestion: "",
+            exercises: pick(dayIndex).map((ex) => ({
+              id: uid(),
+              name: ex.name,
+              type: ex.category,
+              description: ex.description || "Esegui il movimento in modo controllato, rispettando tecnica, respirazione e assenza di dolore.",
+              commonErrors: ex.commonErrors || "Evita compensi, movimenti bruschi, carichi eccessivi e range dolorosi.",
+              sets: ex.sets || "3",
+              reps: ex.reps || "8-12",
+              rest: Number(ex.restSeconds || 90),
+              rir: ex.rir || "2",
+              tut: ex.tut || "controllato",
+              load: "",
+              notes: ex.images?.[0] ? `Immagine riferimento: ${ex.images[0]}` : "",
+              completed: false,
+            })),
+          })),
+        };
+      }
+
       async function generatePlan() {
         const user = currentUser();
         user.anamnesis = readAnamnesis();
         const focus = document.getElementById("planFocus").value;
         setBusy("generatePlanBtn", "Generazione...");
+        const db = await loadExerciseDatabase();
+        const exerciseDatabase = db.length ? selectRelevantExercises(db, user.anamnesis) : [];
         try {
           const result = await askAi("generate_plan", {
             user: { name: user.name },
             anamnesis: user.anamnesis,
             progress: user.progress || [],
             focus,
+            exerciseDatabase,
           });
           user.plans = user.plans || [];
           user.plans.push(normalizePlan(result.plan || defaultPlan(focus), focus));
         } catch {
           user.plans = user.plans || [];
-          user.plans.push(normalizePlan(localAi("generate_plan", { focus }).plan, focus));
+          user.plans.push(normalizePlan(localAi("generate_plan", { focus, exerciseDatabase }).plan, focus));
         } finally {
           saveState();
           clearBusy("generatePlanBtn", "Genera con AI");
@@ -2025,12 +2231,17 @@
         }
       });
 
-      document.getElementById("acceptCookies").onclick = () => {
-        document.getElementById("cookieBanner").classList.add("hidden");
+      document.getElementById("acceptCookies").onclick = () => saveCookieChoice("all");
+      document.getElementById("essentialCookies").onclick = () => saveCookieChoice("essential");
+      document.getElementById("closeCookies").onclick = () => saveCookieChoice("essential");
+      document.getElementById("resetCookieChoice").onclick = () => {
+        localStorage.removeItem(COOKIE_KEY);
+        initCookieBanner();
       };
 
       renderChecks();
       setAuthMode("login");
+      initCookieBanner();
       document.getElementById("progressDate").valueAsDate = new Date();
       if (currentUserId && currentUser()) showApp();
     </script>

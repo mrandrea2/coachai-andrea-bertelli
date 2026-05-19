@@ -1,0 +1,24 @@
+{
+  "total": 873,
+  "categories": {
+    "Forza in palestra": 640,
+    "Mobilita e core": 123,
+    "Prevenzione infortuni": 61,
+    "Dimagrimento/metabolico": 14,
+    "Generale": 35
+  },
+  "equipment": {
+    "Corpo libero": 111,
+    "Macchine palestra": 67,
+    "Altro": 199,
+    "Foam roller": 11,
+    "Kettlebell": 53,
+    "Manubri": 123,
+    "Cavi": 81,
+    "Bilanciere": 170,
+    "Elastici": 20,
+    "Palla medica": 17,
+    "Fitball": 12,
+    "e-z curl bar": 9
+  }
+}
