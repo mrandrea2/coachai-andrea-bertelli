@@ -1526,19 +1526,22 @@
           const source = [...pool, ...complementary];
           const picked = [];
           let cursor = dayIndex * targetBlocks;
-          while (picked.length < targetBlocks && picked.length < source.length) {
+          let attempts = 0;
+          while (picked.length < targetBlocks && attempts < source.length) {
             const item = source[cursor % source.length];
             cursor += 1;
-            const key = `${item[0]}-${dayIndex}`;
+            attempts += 1;
             if (!picked.some((entry) => entry[0] === item[0]) && !used.has(item[0])) {
               picked.push(item);
               used.add(item[0]);
             }
           }
           cursor = dayIndex;
-          while (picked.length < targetBlocks) {
+          attempts = 0;
+          while (picked.length < targetBlocks && attempts < source.length) {
             const item = source[cursor % source.length];
             cursor += 1;
+            attempts += 1;
             if (!picked.some((entry) => entry[0] === item[0])) picked.push(item);
           }
           return picked;
@@ -1682,18 +1685,22 @@
         function pick(dayIndex) {
           const picked = [];
           let cursor = dayIndex * targetBlocks;
-          while (picked.length < targetBlocks && picked.length < exerciseDatabase.length) {
+          let attempts = 0;
+          while (picked.length < targetBlocks && attempts < exerciseDatabase.length) {
             const ex = exerciseDatabase[cursor % exerciseDatabase.length];
             cursor += 1;
+            attempts += 1;
             if (!used.has(ex.id)) {
               picked.push(ex);
               used.add(ex.id);
             }
           }
           cursor = 0;
-          while (picked.length < targetBlocks && exerciseDatabase.length) {
+          attempts = 0;
+          while (picked.length < targetBlocks && attempts < exerciseDatabase.length) {
             const ex = exerciseDatabase[cursor % exerciseDatabase.length];
             cursor += 1;
+            attempts += 1;
             if (!picked.some((item) => item.id === ex.id)) picked.push(ex);
           }
           return picked;
@@ -1733,9 +1740,10 @@
         user.anamnesis = readAnamnesis();
         const focus = document.getElementById("planFocus").value;
         setBusy("generatePlanBtn", "Generazione...");
-        const db = await loadExerciseDatabase();
-        const exerciseDatabase = db.length ? selectRelevantExercises(db, user.anamnesis) : [];
+        let exerciseDatabase = [];
         try {
+          const db = await loadExerciseDatabase();
+          exerciseDatabase = db.length ? selectRelevantExercises(db, user.anamnesis) : [];
           const result = await askAi("generate_plan", {
             user: { name: user.name },
             anamnesis: user.anamnesis,
