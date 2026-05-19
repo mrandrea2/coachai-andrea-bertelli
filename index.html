@@ -1239,7 +1239,10 @@
             <div id="messages" class="messages"></div>
             <form id="chatForm" class="grid cols-2">
               <textarea id="chatInput" placeholder="Scrivi la tua domanda ad Andrea IA..." required></textarea>
-              <button class="btn brand" type="submit">Invia domanda</button>
+              <div class="grid">
+                <button class="btn brand" type="submit">Invia domanda</button>
+                <button id="clearChatBtn" class="btn secondary" type="button">Pulisci chat</button>
+              </div>
             </form>
           </div>
         </section>
@@ -1303,6 +1306,7 @@
     </div>
     <div id="printArea" class="print-area"></div>
 
+    <script src="data/coachai-exercises.local.js"></script>
     <script>
       const STORE_KEY = "abFitnessAiLab.v1";
       const COOKIE_KEY = "coachAiCookieChoice.v1";
@@ -1611,13 +1615,28 @@
             suggestion: `Hai completato ${done}/${total} esercizi. Se tecnica e recupero erano buoni, nella prossima seduta aumenta poco il carico o una serie solo sugli esercizi con RIR alto. Se hai avuto dolore o fatica eccessiva, mantieni i carichi, alza i recuperi e chiedi confronto ad Andrea.`,
           };
         }
-        return {
-          reply: "In anteprima locale posso darti una risposta di base. Per Andrea IA completa pubblica su Vercel con ANTHROPIC_API_KEY. Regola pratica: se compare dolore, sintomi o dubbio clinico, interrompi e chiedi valutazione medica o scrivi ad Andrea: humanperformancelab.app@gmail.com",
-        };
+        const question = String(payload.question || "").toLowerCase();
+        const plan = payload.latestPlan;
+        const anamnesis = payload.anamnesis || {};
+        const planContext = plan ? `Ho visto che la tua ultima scheda è "${plan.title}" con ${plan.days?.length || 0} sedute.` : "Non vedo ancora una scheda generata: compila anamnesi e crea una proposta.";
+        let reply = `${planContext}\n\n`;
+        if (question.includes("dolore") || question.includes("male") || question.includes("fastidio")) {
+          reply += "Se c'è dolore vero o crescente, non forzare: riduci carico, range e intensità, oppure sospendi l'esercizio. Se il dolore resta, compare a riposo o riguarda un infortunio, serve valutazione medica o consulenza diretta con Andrea.";
+        } else if (question.includes("peso") || question.includes("carico") || question.includes("aument")) {
+          reply += "Aumenta il carico solo quando completi tutte le serie con tecnica pulita e RIR coerente. Regola pratica: +2-5% sugli esercizi grandi, +1-2 kg sugli esercizi piccoli, mantenendo il TUT indicato.";
+        } else if (question.includes("recuper")) {
+          reply += "Rispetta i recuperi della scheda: forza 90-150 secondi, ipertrofia 60-120, HIIT secondo protocollo. Se la tecnica peggiora, aumenta il recupero invece di sporcare l'esecuzione.";
+        } else if (question.includes("sostitu") || question.includes("alternativa") || question.includes("attrezzi")) {
+          reply += "Usa il pulsante di cambio esercizio nella scheda: scegli una variante con stesso pattern motorio, stesso obiettivo e attrezzi disponibili. Se c'è dolore, scegli una regressione più stabile.";
+        } else {
+          reply += `Per il tuo obiettivo "${anamnesis.goal || "da definire"}", la priorità è allenarti con continuità, tecnica stabile, progressione graduale e feedback dopo ogni seduta. Aggiorna carichi, RIR, TUT e note: sono i dati che rendono la scheda più intelligente.`;
+        }
+        reply += "\n\nNota: questa risposta è informativa e non sostituisce valutazione medica o consulenza professionale. Per dubbi clinici: humanperformancelab.app@gmail.com";
+        return { reply };
       }
 
       async function loadExerciseDatabase() {
-        if (location.protocol === "file:") return [];
+        if (window.COACHAI_EXERCISES?.length) return window.COACHAI_EXERCISES;
         try {
           const response = await fetch("data/coachai-exercises.json");
           if (!response.ok) return [];
@@ -2214,6 +2233,13 @@
         const input = document.getElementById("chatInput");
         sendChat(input.value);
         input.value = "";
+      };
+
+      document.getElementById("clearChatBtn").onclick = () => {
+        const user = currentUser();
+        user.messages = [];
+        saveState();
+        renderMessages();
       };
 
       document.querySelectorAll(".nav button, [data-section-jump]").forEach((btn) => {
