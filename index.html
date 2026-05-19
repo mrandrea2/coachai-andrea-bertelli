@@ -303,16 +303,43 @@
       }
 
       .site-footer {
-        margin-top: 28px;
-        padding: 22px;
-        border-top: 3px solid var(--ink);
-        background: rgba(255, 255, 255, 0.82);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        margin-top: 22px;
+        padding: 14px 16px;
+        border: 2px solid var(--line);
+        border-left: 6px solid var(--brand);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.74);
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
         align-items: center;
         color: var(--ink);
+        font-size: 13px;
         font-weight: 750;
+        box-shadow: 0 8px 20px rgba(17, 18, 20, 0.06);
+      }
+
+      .footer-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: var(--radius);
+        background: var(--ink);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 950;
+      }
+
+      .site-footer strong {
+        font-size: 15px;
+      }
+
+      .site-footer p {
+        margin: 2px 0 0;
+      }
+
+      .site-footer a {
+        white-space: nowrap;
       }
 
       .panel p {
@@ -387,6 +414,12 @@
       .danger-note {
         background: #fff1f0;
         border-left-color: var(--danger);
+        color: var(--danger);
+        font-size: 13px;
+        line-height: 1.32;
+        font-weight: 800;
+        padding: 10px 12px;
+        border-left-width: 5px;
       }
 
       .muted {
@@ -830,15 +863,26 @@
         }
 
         .site-footer {
-          display: grid;
+          grid-template-columns: auto 1fr;
           gap: 6px;
-          padding: 14px;
+          padding: 12px;
           margin-top: 16px;
+        }
+
+        .site-footer a {
+          grid-column: 1 / -1;
+          white-space: normal;
         }
 
         .notice {
           padding: 12px;
           border-left-width: 6px;
+        }
+
+        .danger-note {
+          font-size: 12px;
+          padding: 9px 10px;
+          border-left-width: 4px;
         }
 
         .workout-day {
@@ -1069,6 +1113,7 @@
               <h3>Ultima scheda</h3>
               <p id="lastPlanSummary" class="muted">Nessuna scheda generata.</p>
               <button class="btn brand" data-section-jump="scheda" type="button">Apri scheda</button>
+              <button id="resetPlansDashboardBtn" class="btn secondary" type="button" style="margin-top: 10px">Azzera schede</button>
             </div>
           </div>
           <div class="grid cols-3" style="margin-top: 18px">
@@ -1181,6 +1226,7 @@
               <div class="top-actions" style="justify-content: flex-start">
                 <button id="generatePlanBtn" class="btn brand" type="button">Genera con AI</button>
                 <button id="printPlanBtn" class="btn secondary" type="button">Scarica PDF</button>
+                <button id="resetPlansBtn" class="btn warn" type="button">Azzera schede</button>
               </div>
               <p id="planStatus" class="muted" style="margin-top: 10px"></p>
               <p class="muted">
@@ -1282,9 +1328,11 @@
           </div>
         </section>
         <footer class="site-footer">
-          <strong>Andrea Bertelli</strong>
-          <span>Psicologo, nutrizionista e preparatore fisico.</span>
-          <span>Per consulenze avanzate, dolore, dubbi clinici o obiettivi agonistici: </span>
+          <span class="footer-badge">AB</span>
+          <div>
+            <strong>Andrea Bertelli</strong>
+            <p>Psicologo, nutrizionista e preparatore fisico. Consulenze avanzate e percorsi personalizzati.</p>
+          </div>
           <a href="mailto:humanperformancelab.app@gmail.com">humanperformancelab.app@gmail.com</a>
         </footer>
       </main>
@@ -2081,6 +2129,22 @@
           : `<div class="panel soft"><p class="muted">Ancora nessun progresso registrato.</p></div>`;
       }
 
+      function resetPlans() {
+        const user = currentUser();
+        if (!user) return;
+        const count = user.plans?.length || 0;
+        const ok = confirm(`Vuoi azzerare ${count} schede e ripartire da capo? Il profilo e l'anamnesi restano salvati.`);
+        if (!ok) return;
+        user.plans = [];
+        user.progress = [];
+        saveState();
+        renderDashboard();
+        renderPlan();
+        renderProgress();
+        const status = document.getElementById("planStatus");
+        if (status) status.textContent = "Schede azzerate. Puoi generare una nuova proposta.";
+      }
+
       function renderMessages() {
         const user = currentUser();
         user.messages = user.messages || [{
@@ -2281,6 +2345,8 @@
 
       document.getElementById("generatePlanBtn").onclick = generatePlan;
       document.getElementById("printPlanBtn").onclick = printPlan;
+      document.getElementById("resetPlansBtn").onclick = resetPlans;
+      document.getElementById("resetPlansDashboardBtn").onclick = resetPlans;
 
       document.getElementById("progressForm").onsubmit = (event) => {
         event.preventDefault();
