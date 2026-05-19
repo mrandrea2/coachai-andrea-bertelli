@@ -6,6 +6,7 @@ Prima versione della web app per generare schede fitness/palestra personalizzate
 
 - `index.html`: app completa lato browser con registrazione, anamnesi, progressi, storico schede, pannello coach/admin, timer recupero, chat Andrea IA, privacy/cookie banner e stampa PDF.
 - `api/chat.js`: funzione serverless Vercel che usa Anthropic per generare schede, risposte chat e cambi esercizio.
+- `api/program.js`: motore di programmazione CoachAI che costruisce una scheda tecnica prima del passaggio AI.
 - `vercel.json`: routing per Vercel.
 
 ## Variabili Vercel

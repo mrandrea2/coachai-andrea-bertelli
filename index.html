@@ -1587,6 +1587,17 @@
         return response.json();
       }
 
+      async function buildProgramDraft(payload) {
+        if (location.protocol === "file:") return localAi("generate_plan", payload);
+        const response = await fetch("/api/program", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payload }),
+        });
+        if (!response.ok) throw new Error("Motore programmazione non disponibile");
+        return response.json();
+      }
+
       function localAi(task, payload = {}) {
         if (task === "generate_plan") {
           if (payload.exerciseDatabase?.length) return { plan: planFromExerciseDatabase(payload.focus || "", payload.exerciseDatabase) };
@@ -1653,25 +1664,41 @@
         const selectedTypes = anamnesis.trainingTypes || [];
         const selectedEquipment = anamnesis.equipment || [];
         const level = anamnesis.level || "";
-        const exact = db.filter((ex) => {
-          const typeOk = !selectedTypes.length || selectedTypes.includes(ex.category);
-          const equipmentOk = !selectedEquipment.length || ex.equipment?.some((item) => selectedEquipment.includes(item));
-          const levelOk = !level || ex.level?.includes(level) || ex.level?.includes("Principiante");
-          return typeOk && equipmentOk && levelOk;
-        });
-        const broader = db.filter((ex) => {
-          const typeOk = !selectedTypes.length || selectedTypes.includes(ex.category);
-          const equipmentOk = !selectedEquipment.length || ex.equipment?.some((item) => selectedEquipment.includes(item)) || ex.equipment?.includes("Corpo libero");
-          return typeOk && equipmentOk;
-        });
-        const fallback = db.filter((ex) => ex.equipment?.includes("Corpo libero") || ex.category === "Mobilita e core");
-        const merged = [...exact, ...broader, ...fallback];
+        const sportsText = (anamnesis.sports || []).join(" ").toLowerCase();
+        const goalText = String(anamnesis.goal || "").toLowerCase();
+        const scored = db.map((ex) => {
+          let score = 0;
+          if (!selectedTypes.length || selectedTypes.includes(ex.category)) score += 8;
+          if (!selectedEquipment.length || ex.equipment?.some((item) => selectedEquipment.includes(item))) score += 6;
+          if (ex.equipment?.includes("Corpo libero")) score += 2;
+          if (!level || ex.level?.includes(level)) score += 3;
+          if (level !== "Avanzato" && ex.level?.includes("Avanzato")) score -= 8;
+          if (goalText.includes("forza") && ex.category === "Forza in palestra") score += 4;
+          if (goalText.includes("ipertrofia") && ["Forza in palestra", "Ipertrofia"].includes(ex.category)) score += 4;
+          if (goalText.includes("performance") && ["Forza in palestra", "Prevenzione infortuni", "Corsa performance", "HIIT"].includes(ex.category)) score += 4;
+          if (goalText.includes("dimagrimento") && ["Dimagrimento/metabolico", "HIIT", "Corsa base"].includes(ex.category)) score += 4;
+          if ((sportsText.includes("tennis") || sportsText.includes("padel")) && ["tirata", "spinta", "core", "squat/lunge", "mobilita"].includes(ex.movementPattern)) score += 2;
+          if ((sportsText.includes("calcio") || sportsText.includes("basket")) && ["squat/lunge", "hinge", "core"].includes(ex.movementPattern)) score += 2;
+          return { ex, score };
+        }).sort((a, b) => b.score - a.score);
+        const selected = [];
         const seen = new Set();
-        return merged.filter((ex) => {
-          if (seen.has(ex.id)) return false;
+        const patternCount = {};
+        const categoryCount = {};
+        for (const item of scored) {
+          const ex = item.ex;
+          if (seen.has(ex.id)) continue;
+          const pattern = ex.movementPattern || "generale";
+          const category = ex.category || "Generale";
+          if ((patternCount[pattern] || 0) >= 24) continue;
+          if ((categoryCount[category] || 0) >= 45) continue;
           seen.add(ex.id);
-          return true;
-        }).slice(0, 90);
+          patternCount[pattern] = (patternCount[pattern] || 0) + 1;
+          categoryCount[category] = (categoryCount[category] || 0) + 1;
+          selected.push(ex);
+          if (selected.length >= 140) break;
+        }
+        return selected;
       }
 
       function planFromExerciseDatabase(focus = "", exerciseDatabase = []) {
@@ -1744,15 +1771,23 @@
         try {
           const db = await loadExerciseDatabase();
           exerciseDatabase = db.length ? selectRelevantExercises(db, user.anamnesis) : [];
-          const result = await askAi("generate_plan", {
+          const draft = await buildProgramDraft({
             user: { name: user.name },
             anamnesis: user.anamnesis,
             progress: user.progress || [],
             focus,
             exerciseDatabase,
           });
+          const result = await askAi("generate_plan", {
+            user: { name: user.name },
+            anamnesis: user.anamnesis,
+            progress: user.progress || [],
+            focus,
+            exerciseDatabase,
+            programDraft: draft.plan,
+          });
           user.plans = user.plans || [];
-          user.plans.push(normalizePlan(result.plan || defaultPlan(focus), focus));
+          user.plans.push(normalizePlan(result.plan || draft.plan || defaultPlan(focus), focus));
         } catch {
           user.plans = user.plans || [];
           user.plans.push(normalizePlan(localAi("generate_plan", { focus, exerciseDatabase }).plan, focus));

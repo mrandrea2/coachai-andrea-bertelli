@@ -31,6 +31,7 @@ Imposta tu i recuperi in secondi in base a obiettivo, livello, esercizio e tempo
 Ogni seduta deve avere normalmente 6-8 blocchi tra riscaldamento, parte principale, complementari, core/mobilita' e defaticamento; usa meno blocchi solo se il tempo disponibile e' molto basso.
 Evita di ripetere sempre gli stessi esercizi tra sedute. Varia pattern, attrezzi e stimoli mantenendo coerenza con obiettivi e sport.
 Se nei dati e' presente "exerciseDatabase", usalo come catalogo prioritario da cui scegliere esercizi. Puoi adattare descrizioni, recuperi, RIR e TUT, ma non ripetere sempre gli stessi nomi.
+Se nei dati e' presente "programDraft", trattalo come struttura tecnica principale: mantieni split, logica, progressione e scelta esercizi salvo correzioni motivate. Il tuo compito e' rifinire descrizioni, coerenza e sicurezza, non distruggere la programmazione.
 Non includere markdown. Restituisci solo JSON con questa forma:
 {
   "plan": {

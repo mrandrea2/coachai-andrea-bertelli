@@ -3,12 +3,19 @@
   "functions": {
     "api/chat.js": {
       "maxDuration": 30
+    },
+    "api/program.js": {
+      "maxDuration": 10
     }
   },
   "routes": [
     {
       "src": "/api/chat",
       "dest": "/api/chat.js"
+    },
+    {
+      "src": "/api/program",
+      "dest": "/api/program.js"
     },
     {
       "src": "/(.*)",
