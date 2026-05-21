@@ -1406,6 +1406,7 @@
         if (!Array.isArray(user.plans)) user.plans = [];
         if (!Array.isArray(user.progress)) user.progress = [];
         if (!Array.isArray(user.messages)) user.messages = [];
+        if (typeof user.templateLevel !== "number") user.templateLevel = levelIndex(user.anamnesis?.level || "Principiante");
         return user;
       }
 
@@ -1491,6 +1492,10 @@
         return 0;
       }
 
+      function levelName(index = 0) {
+        return ["Principiante", "Intermedio", "Avanzato"][Math.max(0, Math.min(2, Number(index) || 0))];
+      }
+
       function day(name, focus, exercises) {
         return { name, focus, sessionFeedback: "", aiSuggestion: "", exercises: exercises.map((factory) => factory()) };
       }
@@ -1561,7 +1566,7 @@
         const user = currentUser();
         const a = user.anamnesis || {};
         const key = templateKey(a);
-        const phase = levelIndex(a.level);
+        const phase = typeof user.templateLevel === "number" ? Math.max(0, Math.min(2, user.templateLevel)) : levelIndex(a.level);
         const labels = {
           dimagrimento: "Dimagrimento e ricomposizione",
           ipertrofia: "Ipertrofia",
@@ -1864,11 +1869,11 @@
             suggestion: `Hai completato ${done}/${total} esercizi. Se tecnica e recupero erano buoni, nella prossima seduta aumenta poco il carico o una serie solo sugli esercizi con RIR alto. Se hai avuto dolore o fatica eccessiva, mantieni i carichi, alza i recuperi e chiedi confronto ad Andrea.`,
           };
         }
-        const question = String(payload.question || "").toLowerCase();
+        const rawQuestion = String(payload.question || "");
+        const question = rawQuestion.toLowerCase();
         const plan = payload.latestPlan;
         const anamnesis = payload.anamnesis || {};
-        const planContext = plan ? `Ho visto che la tua ultima scheda è "${plan.title}" con ${plan.days?.length || 0} sedute.` : "Non vedo ancora una scheda generata: compila anamnesi e crea una proposta.";
-        let reply = `${planContext}\n\n`;
+        let reply = plan ? `Considero anche la tua ultima scheda "${plan.title}".\n\n` : "";
         if (question.includes("dolore") || question.includes("male") || question.includes("fastidio")) {
           reply += "Se c'è dolore vero o crescente, non forzare: riduci carico, range e intensità, oppure sospendi l'esercizio. Se il dolore resta, compare a riposo o riguarda un infortunio, serve valutazione medica o consulenza diretta con Andrea.";
         } else if (question.includes("peso") || question.includes("carico") || question.includes("aument")) {
@@ -1877,8 +1882,16 @@
           reply += "Rispetta i recuperi della scheda: forza 90-150 secondi, ipertrofia 60-120, HIIT secondo protocollo. Se la tecnica peggiora, aumenta il recupero invece di sporcare l'esecuzione.";
         } else if (question.includes("sostitu") || question.includes("alternativa") || question.includes("attrezzi")) {
           reply += "Usa il pulsante di cambio esercizio nella scheda: scegli una variante con stesso pattern motorio, stesso obiettivo e attrezzi disponibili. Se c'è dolore, scegli una regressione più stabile.";
+        } else if (question.includes("creatina")) {
+          reply += "La creatina monoidrato è uno degli integratori più studiati per forza, potenza e massa magra. In generale si usa con costanza, non solo nei giorni di allenamento; prima però considera salute renale, farmaci e parere medico se hai dubbi clinici.";
+        } else if (question.includes("proteine") || question.includes("alimentazione") || question.includes("dieta")) {
+          reply += "Per migliorare composizione corporea e recupero conta prima la base: proteine adeguate, calorie coerenti con l'obiettivo, carboidrati intorno all'allenamento se servono performance, sonno e continuità. Per un piano nutrizionale vero serve consulenza personalizzata.";
+        } else if (question.includes("stretching") || question.includes("mobilit")) {
+          reply += "Mobilità e stretching vanno scelti in base all'obiettivo: prima dell'allenamento meglio mobilità dinamica e attivazione; dopo o in sedute dedicate puoi usare lavori più lenti. Non forzare range dolorosi.";
+        } else if (question.includes("quanto") && (question.includes("allen") || question.includes("settimana"))) {
+          reply += "Per la maggior parte delle persone 3 sedute ben fatte sono già un'ottima base. Si sale a 4-5 quando recupero, tecnica, sonno e organizzazione lo permettono. Meglio poco ma sostenibile che tanto fatto male.";
         } else {
-          reply += `Per il tuo obiettivo "${anamnesis.goal || "da definire"}", la priorità è allenarti con continuità, tecnica stabile, progressione graduale e feedback dopo ogni seduta. Aggiorna carichi, RIR, TUT e note: sono i dati che rendono la scheda più intelligente.`;
+          reply += `Domanda interessante. In generale, per "${anamnesis.goal || "fitness e salute"}" la priorità è ragionare su continuità, tecnica, recupero e progressione graduale. Se mi chiedi una cosa più specifica, posso aiutarti a chiarire pro e contro in modo pratico.`;
         }
         reply += "\n\nNota: questa risposta è informativa e non sostituisce valutazione medica o consulenza professionale. Per dubbi clinici: humanperformancelab.app@gmail.com";
         return { reply };
@@ -2128,7 +2141,11 @@
       async function generatePlan() {
         const user = currentUser();
         if (!user) return;
+        const previousLevel = typeof user.templateLevel === "number" ? user.templateLevel : null;
         user.anamnesis = readAnamnesis();
+        if (previousLevel === null) user.templateLevel = levelIndex(user.anamnesis.level);
+        user.anamnesis.level = levelName(user.templateLevel);
+        document.getElementById("level").value = user.anamnesis.level;
         const focus = document.getElementById("planFocus").value;
         const status = document.getElementById("planStatus");
         if (status) status.textContent = "Sto scegliendo la scheda progressiva più adatta...";
@@ -2201,6 +2218,7 @@
             })),
             sessionFeedback: day.sessionFeedback || "",
             aiSuggestion: day.aiSuggestion || "",
+            completedAt: day.completedAt || "",
           })) : fallback.days,
         };
       }
@@ -2221,6 +2239,11 @@
           <div class="panel">
             <h3>${escapeHtml(plan.title)}</h3>
             <p>${escapeHtml(plan.summary || "")}</p>
+            <div class="top-actions" style="justify-content:flex-start; margin: 12px 0">
+              <span class="tag">Livello attuale: ${escapeHtml(levelName(currentUser().templateLevel || 0))}</span>
+              ${currentUser().templateLevel < 2 ? `<button class="btn brand" type="button" onclick="generateNextLevel()">Genera livello successivo</button>` : `<span class="tag">Livello massimo gratuito</span>`}
+              <button class="btn secondary" type="button" onclick="resetTemplateLevel()">Riparti dal livello 1</button>
+            </div>
             <div class="notice danger-note">${escapeHtml(plan.disclaimer || "")}</div>
           </div>
           ${plan.days.map((day, dayIndex) => `
@@ -2322,6 +2345,7 @@
         `);
         document.getElementById("confirmFeedback").onclick = async () => {
           day.sessionFeedback = document.getElementById("sessionFeedback").value;
+          day.completedAt = new Date().toISOString();
           try {
             const result = await askAi("workout_feedback", {
               day,
@@ -2340,11 +2364,36 @@
             feeling: "Feedback scheda",
             notes: `${day.name}: ${day.sessionFeedback}\nAndrea IA: ${day.aiSuggestion}`,
           });
+          const plan = latestPlan();
+          const completedDays = plan.days.filter((item) => item.completedAt || item.sessionFeedback).length;
+          if (completedDays >= plan.days.length && user.templateLevel < 2) {
+            day.aiSuggestion += ` Hai completato il ciclo base della scheda: se non hai dolore e la tecnica resta pulita, puoi usare il pulsante "Genera livello successivo".`;
+          }
           saveState();
           closeModal();
           renderPlan();
           renderProgress();
         };
+      };
+
+      window.generateNextLevel = function generateNextLevel() {
+        const user = currentUser();
+        user.templateLevel = Math.min(2, Number(user.templateLevel || 0) + 1);
+        user.anamnesis = readAnamnesis();
+        user.anamnesis.level = levelName(user.templateLevel);
+        document.getElementById("level").value = user.anamnesis.level;
+        saveState();
+        generatePlan();
+      };
+
+      window.resetTemplateLevel = function resetTemplateLevel() {
+        const user = currentUser();
+        user.templateLevel = 0;
+        user.anamnesis = readAnamnesis();
+        user.anamnesis.level = "Principiante";
+        document.getElementById("level").value = "Principiante";
+        saveState();
+        generatePlan();
       };
 
       window.startTimer = function startTimer(id, seconds) {
@@ -2629,6 +2678,7 @@
       document.getElementById("saveAllBtn").onclick = () => {
         const user = currentUser();
         user.anamnesis = readAnamnesis();
+        user.templateLevel = levelIndex(user.anamnesis.level);
         persistPlanInputs();
         saveState();
         alert("Dati salvati.");
@@ -2636,7 +2686,9 @@
 
       document.getElementById("anamnesisForm").onsubmit = (event) => {
         event.preventDefault();
-        currentUser().anamnesis = readAnamnesis();
+        const user = currentUser();
+        user.anamnesis = readAnamnesis();
+        user.templateLevel = levelIndex(user.anamnesis.level);
         saveState();
         renderDashboard();
         switchSection("scheda");
