@@ -1190,7 +1190,7 @@
               <div id="sportsChecks" class="checks"></div>
               <label style="margin-top: 18px">Tipi di allenamento possibili</label>
               <div id="trainingTypeChecks" class="checks"></div>
-              <label style="margin-top: 18px">Materiale disponibile</label>
+              <label style="margin-top: 18px">Contesto di allenamento</label>
               <div id="equipmentChecks" class="checks"></div>
               <div class="grid cols-3" style="margin-top: 18px">
                 <div class="field">
@@ -1224,13 +1224,13 @@
                 <textarea id="planFocus" placeholder="Es. più forza gambe per tennis, ridurre stress lombare, aumentare massa..."></textarea>
               </div>
               <div class="top-actions" style="justify-content: flex-start">
-                <button id="generatePlanBtn" class="btn brand" type="button">Genera con AI</button>
+                <button id="generatePlanBtn" class="btn brand" type="button">Genera scheda</button>
                 <button id="printPlanBtn" class="btn secondary" type="button">Scarica PDF</button>
                 <button id="resetPlansBtn" class="btn warn" type="button">Azzera schede</button>
               </div>
               <p id="planStatus" class="muted" style="margin-top: 10px"></p>
               <p class="muted">
-                Si apre una versione stampabile: scegli “Salva come PDF”.
+                Versione gratuita: schede preimpostate progressive. Per personalizzazioni reali su dolore, tecnica, sport e obiettivi scrivi ad Andrea.
               </p>
             </div>
             <div class="panel soft">
@@ -1373,7 +1373,7 @@
         "Mobilità e core",
         "Prevenzione infortuni",
       ];
-      const equipment = ["Corpo libero", "Manubri", "Bilanciere", "Kettlebell", "Elastici", "TRX", "Macchine palestra", "Cavi", "Panca", "Tapis roulant", "Bike", "Piscina"];
+      const equipment = ["Casa / corpo libero", "Casa con manubri o elastici", "Palestra basic", "Palestra completa", "Solo cardio: corsa, bici o nuoto"];
 
       const state = loadState();
       let mode = "login";
@@ -1417,6 +1417,173 @@
 
       function uid() {
         return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function makeExercise(name, type, description, commonErrors, sets, reps, rest, rir = "2-3", tut = "controllato") {
+        return {
+          id: uid(),
+          name,
+          type,
+          description,
+          commonErrors,
+          sets,
+          reps,
+          rest,
+          rir,
+          tut,
+          load: "",
+          notes: "",
+          completed: false,
+        };
+      }
+
+      const templateExercises = {
+        warmMobility: () => makeExercise("Riscaldamento mobilita attiva", "Riscaldamento", "5-8 minuti di mobilita dinamica: anche, caviglie, torace, scapole. Movimento facile, respirazione regolare, nessun dolore.", "Partire subito forte, saltare il riscaldamento, forzare range dolorosi.", "1", "5-8 min", 30, "4", "lento"),
+        goblet: () => makeExercise("Goblet squat con pausa", "Forza tecnica", "Squat con carico al petto, discesa controllata, fermo breve in basso e risalita stabile. Priorita a ginocchia allineate e busto solido.", "Ginocchia che collassano, rimbalzo in basso, perdere schiena neutra.", "3-4", "8-10", 90, "2-3", "3-1-1"),
+        split: () => makeExercise("Split squat controllato", "Forza tecnica", "Affondo statico con passo stabile. Scendi verticale, spingi dal piede davanti e mantieni bacino fermo.", "Passo troppo corto, ginocchio instabile, spinta solo sulla punta.", "3", "8-10 per lato", 90, "2-3", "3-1-1"),
+        rdl: () => makeExercise("Romanian deadlift", "Catena posteriore", "Porta le anche indietro, carico vicino alle gambe e schiena neutra. Devi sentire femorali e glutei, non la zona lombare.", "Curvare la schiena, piegare troppo le ginocchia, allontanare il carico.", "3-4", "8-10", 105, "2", "3-1-1"),
+        hipThrust: () => makeExercise("Hip thrust con fermo", "Glutei", "Spinta d'anca con fermo in alto. Bacino stabile, costole giu, chiusura sui glutei.", "Iperestendere la schiena, piedi troppo avanti, rimbalzare.", "3-4", "10-12", 90, "1-2", "2-1-2"),
+        push: () => makeExercise("Push-up inclinato o chest press", "Spinta", "Scegli variante pulita: mani su rialzo o macchina. Corpo in linea, gomiti controllati, scapole stabili.", "Bacino che cade, gomiti troppo larghi, spalle in avanti.", "3-4", "8-12", 90, "2", "2-1-1"),
+        row: () => makeExercise("Rematore manubrio o pulley", "Tirata", "Tira il gomito verso il fianco, petto aperto e controllo in discesa. Cerca schiena, non slancio.", "Ruotare il busto, tirare col collo, perdere controllo.", "3-4", "8-12", 90, "2", "2-1-2"),
+        pulldown: () => makeExercise("Lat machine presa neutra", "Tirata", "Gomiti verso le tasche, torace alto, risalita controllata. Fermati prima di compensare.", "Tirare dietro il collo, slanciare, chiudere le spalle.", "3-4", "8-12", 90, "2", "2-1-2"),
+        press: () => makeExercise("Floor press o chest press", "Spinta", "Spinta orizzontale stabile. Mantieni scapole controllate e carico gestibile.", "Rimbalzare, perdere spalle, cercare carico prima della tecnica.", "4", "6-8", 120, "2", "2-1-1"),
+        plank: () => makeExercise("Plank / side plank", "Core", "Tenuta addominale con bacino stabile e respiro controllato. Scegli variante che non crea compensi.", "Bacino basso, collo contratto, trattenere il respiro.", "3", "20-40 sec", 45, "3", "isometrico"),
+        deadBug: () => makeExercise("Dead bug respirato", "Core", "Costole giu, lombare stabile, espira mentre distendi braccio e gamba opposti.", "Inarcare la schiena, muoversi veloce, perdere respirazione.", "3", "6-8 per lato", 40, "3", "lento"),
+        pallof: () => makeExercise("Pallof press", "Core antirotazione", "Spingi avanti resistendo alla rotazione. Ottimo per controllo del tronco e sport.", "Ruotare il busto, spalle alte, carico troppo forte.", "3", "10 per lato", 45, "3", "2-1-2"),
+        facePull: () => makeExercise("Face pull elastico o cavo", "Prevenzione", "Tira verso il viso con gomiti alti e scapole controllate. Utile per postura e spalla.", "Spalle alle orecchie, elastico troppo duro, tirare solo con braccia.", "3", "12-15", 45, "3", "2-1-2"),
+        calf: () => makeExercise("Calf raise controllato", "Prevenzione", "Salita completa, fermo in alto e discesa lenta. Utile per corsa, salti e cambi direzione.", "Rimbalzare, accorciare il movimento, caviglie instabili.", "3", "12-15", 60, "2-3", "2-1-3"),
+        stepDown: () => makeExercise("Step down controllato", "Prevenzione", "Scendi da un rialzo basso controllando ginocchio, anca e piede. Qualita prima dell'altezza.", "Ginocchio che cade dentro, scendere veloce, rialzo troppo alto.", "3", "6-8 per lato", 75, "3", "3-1-1"),
+        z2: () => makeExercise("Cardio zona 2", "Condizionamento", "Ritmo facile-moderato: riesci a parlare a frasi brevi. Scegli corsa, camminata, bici o ellittica secondo contesto.", "Partire troppo forte, trasformarlo in gara, ignorare fastidi.", "1", "20-35 min", 60, "3", "Z2"),
+        intervals: () => makeExercise("Intervalli controllati", "Condizionamento", "Blocchi intensi ma ripetibili. Mantieni tecnica e recupera abbastanza per non sporcare il gesto.", "Fare sprint massimali, recuperare poco, perdere qualita.", "6-8", "30 sec forte / 75 sec facile", 75, "2-3", "potente pulito"),
+        changes: () => makeExercise("Cambi direzione controllati", "Performance", "Accelerazione breve, frenata controllata e ripartenza. Focus su appoggi, ginocchio stabile e recupero completo.", "Frenare rigido, troppe ripetizioni, ginocchio in valgo.", "6-8", "5-8 sec", 75, "3", "esplosivo pulito"),
+        runEasy: () => makeExercise("Corsa facile con allunghi", "Running", "Ritmo conversazionale e 4-6 allunghi brevi finali. Obiettivo: base aerobica e tecnica rilassata.", "Partire forte, allunghi troppo lunghi, appoggi rumorosi.", "1", "30-45 min", 60, "3", "Z2"),
+        runTempo: () => makeExercise("Tempo run controllato", "Running", "Dopo riscaldamento, blocco sostenuto ma gestibile. Devi chiudere ordinato, non distrutto.", "Trasformarlo in gara, partire sopra soglia, tecnica che crolla.", "1", "12-22 min", 90, "2", "sostenuto"),
+        bikeZ2: () => makeExercise("Bici aerobica", "Bici", "Pedalata fluida a ritmo facile-moderato. Cadenza regolare e bacino stabile.", "Rapporto troppo duro, cadenza bassa, postura chiusa.", "1", "35-55 min", 60, "3", "85-95 rpm"),
+        bikeIntervals: () => makeExercise("Bici intervalli moderati", "Bici", "Blocchi a intensita medio-alta ma sostenibile, recupero facile tra i blocchi.", "Partire troppo forte, recuperi casuali, bacino instabile.", "4", "3 min medio / 2 min facile", 90, "2-3", "costante"),
+        swimTech: () => makeExercise("Nuoto tecnica + continuo facile", "Nuoto", "Vasche tecniche alternate a nuoto continuo facile. Cura assetto, presa e respirazione.", "Alzare troppo la testa, accorciare bracciata, forzare intensita.", "1", "900-1500 m", 45, "3", "fluido"),
+        swimIntervals: () => makeExercise("Nuoto intervalli aerobici", "Nuoto", "Serie regolari con recupero breve e tecnica stabile. Stessa nuotata dall'inizio alla fine.", "Partire forte, perdere allineamento, recuperare a caso.", "8", "50-100 m", 30, "2-3", "costante"),
+      };
+
+      const templateGoalMap = [
+        { key: "dimagrimento", label: "Dimagrimento e ricomposizione", match: ["dimagrimento", "ricomposizione"] },
+        { key: "ipertrofia", label: "Ipertrofia", match: ["ipertrofia"] },
+        { key: "forza", label: "Forza", match: ["forza"] },
+        { key: "performance", label: "Performance sportiva", match: ["performance"] },
+        { key: "benessere", label: "Benessere generale", match: ["benessere"] },
+        { key: "prevenzione", label: "Ritorno graduale / prevenzione", match: ["ritorno", "prevenzione"] },
+      ];
+
+      function templateKey(anamnesis = {}) {
+        const sport = (anamnesis.sports || []).join(" ").toLowerCase();
+        if (sport.includes("tennis") || sport.includes("padel")) return "tennis";
+        if (sport.includes("calcio")) return "calcio";
+        if (sport.includes("running")) return "running";
+        if (sport.includes("ciclismo") || sport.includes("bike")) return "ciclismo";
+        if (sport.includes("nuoto")) return "nuoto";
+        const goal = String(anamnesis.goal || "").toLowerCase();
+        return templateGoalMap.find((item) => item.match.some((word) => goal.includes(word)))?.key || "benessere";
+      }
+
+      function levelIndex(level = "") {
+        const value = String(level).toLowerCase();
+        if (value.includes("avanz")) return 2;
+        if (value.includes("inter")) return 1;
+        return 0;
+      }
+
+      function day(name, focus, exercises) {
+        return { name, focus, sessionFeedback: "", aiSuggestion: "", exercises: exercises.map((factory) => factory()) };
+      }
+
+      function templateBlueprint(key, phase) {
+        const e = templateExercises;
+        const library = {
+          dimagrimento: [
+            [day("Allenamento 1 - Full body base", "Forza tecnica + zona 2", [e.warmMobility, e.goblet, e.push, e.row, e.deadBug, e.z2]), day("Allenamento 2 - Metabolico controllato", "Circuito tecnico", [e.warmMobility, e.split, e.rdl, e.facePull, e.plank, e.intervals]), day("Allenamento 3 - Full body progressivo", "Forza + core", [e.warmMobility, e.hipThrust, e.pulldown, e.push, e.pallof, e.z2])],
+            [day("Allenamento 1 - Lower + cardio", "Gambe e consumo controllato", [e.warmMobility, e.goblet, e.rdl, e.stepDown, e.plank, e.z2]), day("Allenamento 2 - Upper + HIIT", "Parte alta e intervalli", [e.warmMobility, e.press, e.row, e.pulldown, e.facePull, e.intervals]), day("Allenamento 3 - Full body densita", "Densita senza caos", [e.warmMobility, e.split, e.hipThrust, e.push, e.pallof, e.z2])],
+            [day("Allenamento 1 - Forza metabolica", "Carichi medi e cardio", [e.warmMobility, e.goblet, e.rdl, e.row, e.plank, e.intervals]), day("Allenamento 2 - Upper density", "Volume parte alta", [e.warmMobility, e.press, e.pulldown, e.push, e.facePull, e.z2]), day("Allenamento 3 - Lower + core", "Volume gambe e stabilita", [e.warmMobility, e.split, e.hipThrust, e.stepDown, e.pallof, e.intervals])],
+          ],
+          ipertrofia: [
+            [day("Allenamento 1 - Full body A", "Tecnica e volume base", [e.warmMobility, e.goblet, e.press, e.row, e.hipThrust, e.plank]), day("Allenamento 2 - Full body B", "Pattern complementari", [e.warmMobility, e.rdl, e.push, e.pulldown, e.split, e.deadBug]), day("Allenamento 3 - Full body C", "Volume controllato", [e.warmMobility, e.legPress || e.goblet, e.row, e.hipThrust, e.facePull, e.pallof])],
+            [day("Allenamento 1 - Lower", "Gambe e glutei", [e.warmMobility, e.goblet, e.rdl, e.hipThrust, e.stepDown, e.calf]), day("Allenamento 2 - Upper", "Spinta e tirata", [e.warmMobility, e.press, e.row, e.pulldown, e.push, e.facePull]), day("Allenamento 3 - Full body volume", "Richiamo generale", [e.warmMobility, e.split, e.hipThrust, e.row, e.push, e.plank])],
+            [day("Allenamento 1 - Lower volume", "Volume gambe", [e.warmMobility, e.goblet, e.rdl, e.hipThrust, e.split, e.calf]), day("Allenamento 2 - Upper volume", "Volume parte alta", [e.warmMobility, e.press, e.pulldown, e.row, e.push, e.facePull]), day("Allenamento 3 - Specializzazione", "Richiami mirati", [e.warmMobility, e.stepDown, e.hipThrust, e.row, e.pallof, e.z2])],
+          ],
+          forza: [
+            [day("Allenamento 1 - Tecnica squat/spinta", "Forza base", [e.warmMobility, e.goblet, e.press, e.row, e.deadBug, e.facePull]), day("Allenamento 2 - Tecnica hinge/tirata", "Forza base", [e.warmMobility, e.rdl, e.pulldown, e.push, e.plank, e.calf]), day("Allenamento 3 - Full body forza", "Consolidamento", [e.warmMobility, e.split, e.hipThrust, e.row, e.pallof, e.z2])],
+            [day("Allenamento 1 - Lower forza", "Principali pesanti ma puliti", [e.warmMobility, e.goblet, e.rdl, e.stepDown, e.plank, e.calf]), day("Allenamento 2 - Upper forza", "Spinta e tirata", [e.warmMobility, e.press, e.pulldown, e.row, e.facePull, e.deadBug]), day("Allenamento 3 - Full body intensita", "Richiamo tecnico", [e.warmMobility, e.split, e.hipThrust, e.push, e.pallof, e.z2])],
+            [day("Allenamento 1 - Lower intensita", "Forza gambe", [e.warmMobility, e.goblet, e.rdl, e.hipThrust, e.calf, e.plank]), day("Allenamento 2 - Upper intensita", "Forza parte alta", [e.warmMobility, e.press, e.row, e.pulldown, e.push, e.facePull]), day("Allenamento 3 - Potenziamento", "Qualita e controllo", [e.warmMobility, e.split, e.stepDown, e.pallof, e.changes, e.z2])],
+          ],
+          performance: [
+            [day("Allenamento 1 - Base atletica", "Forza generale", [e.warmMobility, e.goblet, e.rdl, e.row, e.pallof, e.z2]), day("Allenamento 2 - Prevenzione", "Anca, ginocchio, spalla", [e.warmMobility, e.split, e.stepDown, e.facePull, e.deadBug, e.calf]), day("Allenamento 3 - Conditioning", "Qualita aerobica", [e.warmMobility, e.push, e.pulldown, e.plank, e.changes, e.z2])],
+            [day("Allenamento 1 - Forza sportiva", "Lower + core", [e.warmMobility, e.split, e.rdl, e.hipThrust, e.pallof, e.calf]), day("Allenamento 2 - Upper stabile", "Scapole e tronco", [e.warmMobility, e.push, e.row, e.facePull, e.deadBug, e.z2]), day("Allenamento 3 - Speed conditioning", "Cambi direzione", [e.warmMobility, e.stepDown, e.changes, e.plank, e.intervals])],
+            [day("Allenamento 1 - Potenza controllata", "Forza + controllo", [e.warmMobility, e.goblet, e.rdl, e.split, e.pallof, e.changes]), day("Allenamento 2 - Prehab alto livello", "Stabilita", [e.warmMobility, e.push, e.row, e.facePull, e.deadBug, e.calf]), day("Allenamento 3 - Condizionamento specifico", "Ripetibilita", [e.warmMobility, e.stepDown, e.hipThrust, e.plank, e.intervals])],
+          ],
+          benessere: [
+            [day("Allenamento 1 - Movimento base", "Tecnica e mobilita", [e.warmMobility, e.goblet, e.push, e.row, e.deadBug, e.z2]), day("Allenamento 2 - Postura e core", "Controllo", [e.warmMobility, e.rdl, e.facePull, e.plank, e.pallof, e.z2]), day("Allenamento 3 - Full body facile", "Continuita", [e.warmMobility, e.split, e.pulldown, e.hipThrust, e.deadBug, e.z2])],
+            [day("Allenamento 1 - Full body A", "Forza generale", [e.warmMobility, e.goblet, e.press, e.row, e.plank, e.z2]), day("Allenamento 2 - Full body B", "Mobilita e controllo", [e.warmMobility, e.rdl, e.push, e.facePull, e.pallof, e.calf]), day("Allenamento 3 - Cardio + forza", "Benessere metabolico", [e.warmMobility, e.split, e.pulldown, e.deadBug, e.z2])],
+            [day("Allenamento 1 - Forza salutare", "Progressione", [e.warmMobility, e.goblet, e.rdl, e.row, e.plank, e.z2]), day("Allenamento 2 - Upper/postura", "Spalle e schiena", [e.warmMobility, e.press, e.pulldown, e.facePull, e.deadBug, e.z2]), day("Allenamento 3 - Lower/core", "Gambe e tronco", [e.warmMobility, e.split, e.hipThrust, e.stepDown, e.pallof, e.z2])],
+          ],
+          prevenzione: [
+            [day("Allenamento 1 - Rientro A", "Tecnica senza dolore", [e.warmMobility, e.goblet, e.push, e.row, e.deadBug, e.z2]), day("Allenamento 2 - Rientro B", "Controllo articolare", [e.warmMobility, e.rdl, e.stepDown, e.facePull, e.plank, e.z2]), day("Allenamento 3 - Rientro C", "Volume leggero", [e.warmMobility, e.split, e.pulldown, e.pallof, e.calf, e.z2])],
+            [day("Allenamento 1 - Base forza", "Progressione prudente", [e.warmMobility, e.goblet, e.rdl, e.deadBug, e.calf, e.z2]), day("Allenamento 2 - Postura e spalla", "Prehab", [e.warmMobility, e.push, e.row, e.facePull, e.pallof, e.z2]), day("Allenamento 3 - Lower controllo", "Anca ginocchio caviglia", [e.warmMobility, e.split, e.stepDown, e.hipThrust, e.plank, e.z2])],
+            [day("Allenamento 1 - Rientro avanzato", "Forza tecnica", [e.warmMobility, e.goblet, e.rdl, e.row, e.pallof, e.z2]), day("Allenamento 2 - Stabilita", "Controllo globale", [e.warmMobility, e.push, e.facePull, e.stepDown, e.deadBug, e.calf]), day("Allenamento 3 - Capacita", "Volume tollerato", [e.warmMobility, e.split, e.hipThrust, e.pulldown, e.plank, e.intervals])],
+          ],
+          tennis: [
+            [day("Allenamento 1 - Gambe tennis", "Appoggi e core", [e.warmMobility, e.split, e.rdl, e.pallof, e.calf, e.z2]), day("Allenamento 2 - Spalla/scapola", "Prevenzione racchetta", [e.warmMobility, e.push, e.row, e.facePull, e.deadBug, e.z2]), day("Allenamento 3 - Campo", "Cambi direzione", [e.warmMobility, e.stepDown, e.changes, e.plank, e.intervals])],
+            [day("Allenamento 1 - Lower tennis", "Forza monopodalica", [e.warmMobility, e.split, e.hipThrust, e.stepDown, e.pallof, e.calf]), day("Allenamento 2 - Upper tennis", "Spalla stabile", [e.warmMobility, e.push, e.row, e.facePull, e.deadBug, e.z2]), day("Allenamento 3 - Agilita", "Ripetibilita", [e.warmMobility, e.changes, e.rdl, e.plank, e.intervals])],
+            [day("Allenamento 1 - Potenza tennis", "Gambe e tronco", [e.warmMobility, e.goblet, e.rdl, e.split, e.pallof, e.changes]), day("Allenamento 2 - Prehab avanzato", "Scapole e core", [e.warmMobility, e.push, e.pulldown, e.facePull, e.deadBug, e.calf]), day("Allenamento 3 - Condizionamento tennis", "Scambi ripetuti", [e.warmMobility, e.stepDown, e.changes, e.plank, e.intervals])],
+          ],
+          calcio: [
+            [day("Allenamento 1 - Forza gambe", "Base calcio", [e.warmMobility, e.goblet, e.rdl, e.calf, e.plank, e.z2]), day("Allenamento 2 - Prevenzione", "Ginocchio e adduttori", [e.warmMobility, e.split, e.stepDown, e.pallof, e.deadBug, e.z2]), day("Allenamento 3 - Sprint/COD", "Cambi direzione", [e.warmMobility, e.changes, e.hipThrust, e.calf, e.intervals])],
+            [day("Allenamento 1 - Lower calcio", "Forza monopodalica", [e.warmMobility, e.split, e.rdl, e.stepDown, e.plank, e.calf]), day("Allenamento 2 - Upper/core", "Contrasti e postura", [e.warmMobility, e.push, e.row, e.pallof, e.facePull, e.z2]), day("Allenamento 3 - Condizionamento", "Ripetute brevi", [e.warmMobility, e.changes, e.hipThrust, e.deadBug, e.intervals])],
+            [day("Allenamento 1 - Potenza calcio", "Gambe", [e.warmMobility, e.goblet, e.rdl, e.split, e.calf, e.changes]), day("Allenamento 2 - Robustezza", "Core e parte alta", [e.warmMobility, e.press, e.row, e.pallof, e.facePull, e.z2]), day("Allenamento 3 - Match fitness", "Alta intensita", [e.warmMobility, e.stepDown, e.hipThrust, e.plank, e.intervals])],
+          ],
+          running: [
+            [day("Allenamento 1 - Corsa facile", "Base aerobica", [e.warmMobility, e.runEasy, e.deadBug, e.calf]), day("Allenamento 2 - Forza runner", "Anca e piede", [e.warmMobility, e.split, e.rdl, e.stepDown, e.plank, e.calf]), day("Allenamento 3 - Facile lungo", "Volume prudente", [e.warmMobility, e.z2, e.pallof])],
+            [day("Allenamento 1 - Qualita leggera", "Allunghi", [e.warmMobility, e.runEasy, e.calf, e.deadBug]), day("Allenamento 2 - Forza runner", "Monopodalico", [e.warmMobility, e.split, e.rdl, e.stepDown, e.pallof, e.calf]), day("Allenamento 3 - Tempo controllato", "Soglia dolce", [e.warmMobility, e.runTempo, e.plank])],
+            [day("Allenamento 1 - Tempo run", "Qualita", [e.warmMobility, e.runTempo, e.calf, e.deadBug]), day("Allenamento 2 - Forza specifica", "Catena posteriore", [e.warmMobility, e.rdl, e.split, e.stepDown, e.pallof, e.calf]), day("Allenamento 3 - Intervalli", "Velocita controllata", [e.warmMobility, e.intervals, e.plank])],
+          ],
+          ciclismo: [
+            [day("Allenamento 1 - Bici facile", "Base aerobica", [e.warmMobility, e.bikeZ2, e.deadBug]), day("Allenamento 2 - Forza complementare", "Gambe e core", [e.warmMobility, e.goblet, e.rdl, e.hipThrust, e.plank, e.calf]), day("Allenamento 3 - Bici progressiva", "Aerobico", [e.warmMobility, e.bikeZ2, e.pallof])],
+            [day("Allenamento 1 - Sweet spot base", "Bici qualita", [e.warmMobility, e.bikeIntervals, e.deadBug]), day("Allenamento 2 - Forza cyclist", "Glutei e tronco", [e.warmMobility, e.split, e.rdl, e.hipThrust, e.plank, e.calf]), day("Allenamento 3 - Aerobico lungo", "Resistenza", [e.warmMobility, e.bikeZ2, e.pallof])],
+            [day("Allenamento 1 - Intervalli bici", "Potenza sostenibile", [e.warmMobility, e.bikeIntervals, e.deadBug]), day("Allenamento 2 - Forza mantenimento", "Efficienza", [e.warmMobility, e.goblet, e.rdl, e.stepDown, e.plank, e.calf]), day("Allenamento 3 - Fondo", "Capacita aerobica", [e.warmMobility, e.bikeZ2, e.pallof])],
+          ],
+          nuoto: [
+            [day("Allenamento 1 - Tecnica nuoto", "Assetto", [e.warmMobility, e.swimTech, e.facePull]), day("Allenamento 2 - Forza nuoto", "Scapole e core", [e.warmMobility, e.row, e.pulldown, e.push, e.deadBug, e.pallof]), day("Allenamento 3 - Continuo facile", "Aerobico", [e.warmMobility, e.swimTech, e.plank])],
+            [day("Allenamento 1 - Intervalli aerobici", "Nuoto", [e.warmMobility, e.swimIntervals, e.facePull]), day("Allenamento 2 - Forza specifica", "Dorsali e core", [e.warmMobility, e.pulldown, e.row, e.push, e.pallof, e.deadBug]), day("Allenamento 3 - Tecnica + volume", "Nuoto", [e.warmMobility, e.swimTech, e.plank])],
+            [day("Allenamento 1 - Qualita nuoto", "Intervalli", [e.warmMobility, e.swimIntervals, e.facePull]), day("Allenamento 2 - Palestra nuoto", "Forza utile", [e.warmMobility, e.pulldown, e.row, e.press, e.pallof, e.deadBug]), day("Allenamento 3 - Volume tecnico", "Resistenza", [e.warmMobility, e.swimTech, e.plank])],
+          ],
+        };
+        return library[key]?.[phase] || library.benessere[phase];
+      }
+
+      function templatePlan(focus = "") {
+        const user = currentUser();
+        const a = user.anamnesis || {};
+        const key = templateKey(a);
+        const phase = levelIndex(a.level);
+        const labels = {
+          dimagrimento: "Dimagrimento e ricomposizione",
+          ipertrofia: "Ipertrofia",
+          forza: "Forza",
+          performance: "Performance sportiva",
+          benessere: "Benessere generale",
+          prevenzione: "Ritorno graduale / prevenzione",
+          tennis: "Tennis / padel",
+          calcio: "Calcio",
+          running: "Running",
+          ciclismo: "Ciclismo",
+          nuoto: "Nuoto",
+        };
+        const context = (a.equipment || []).join(", ") || "contesto non specificato";
+        return {
+          id: uid(),
+          title: `CoachAI Free - ${labels[key]} - Livello ${phase + 1}`,
+          createdAt: new Date().toISOString(),
+          disclaimer: "Scheda generale gratuita, non realmente personalizzata. Per adattamenti su dolore, patologie, tecnica, sport e progressi scrivi a humanperformancelab.app@gmail.com.",
+          summary: `Template progressivo livello ${phase + 1}/3. Contesto: ${context}. Focus: ${focus || a.goal || labels[key]}. Usa questa proposta come base educativa; per una scheda su misura richiedi consulenza con Andrea Bertelli.`,
+          days: templateBlueprint(key, phase),
+        };
       }
 
       function escapeHtml(value = "") {
@@ -1586,15 +1753,18 @@
         function pickBlocks(dayIndex) {
           const source = [...pool, ...complementary];
           const picked = [];
+          let hasConditioning = false;
           let cursor = dayIndex * targetBlocks;
           let attempts = 0;
           while (picked.length < targetBlocks && attempts < source.length) {
             const item = source[cursor % source.length];
             cursor += 1;
             attempts += 1;
+            if (isConditioningCategory(item[1]) && hasConditioning) continue;
             if (!picked.some((entry) => entry[0] === item[0]) && !used.has(item[0])) {
               picked.push(item);
               used.add(item[0]);
+              if (isConditioningCategory(item[1])) hasConditioning = true;
             }
           }
           cursor = dayIndex;
@@ -1603,7 +1773,9 @@
             const item = source[cursor % source.length];
             cursor += 1;
             attempts += 1;
+            if (isConditioningCategory(item[1]) && hasConditioning) continue;
             if (!picked.some((entry) => entry[0] === item[0])) picked.push(item);
+            if (isConditioningCategory(item[1])) hasConditioning = true;
           }
           return picked;
         }
@@ -1661,7 +1833,9 @@
 
       function localAi(task, payload = {}) {
         if (task === "generate_plan") {
-          if (payload.exerciseDatabase?.length) return { plan: planFromExerciseDatabase(payload.focus || "", payload.exerciseDatabase) };
+          if (payload.exerciseDatabase?.length) {
+            return { plan: planFromExerciseDatabase(payload.focus || "", payload.exerciseDatabase) };
+          }
           return { plan: defaultPlan(payload.focus || "") };
         }
         if (task === "swap_exercise") {
@@ -1721,15 +1895,96 @@
         }
       }
 
+      function clientIsLowQualityExercise(ex, anamnesis = {}) {
+        const name = String(ex.name || "").toLowerCase();
+        const limitations = String(anamnesis.limitations || "").toLowerCase();
+        const level = anamnesis.level || "Intermedio";
+        const banned = [
+          "yoke", "atlas", "tire", "log lift", "strongman", "snatch", "jerk",
+          "muscle-up", "muscle up", "handstand", "neck", "behind the neck",
+          "partner", "gorilla", "sissy", "circus", "plyo push-up",
+          "wide-grip rear pull-up", "decline crunch", "clock push-up",
+          "close-grip push-up off", "iron crosses", "hands overhead",
+          "run release", "medicine ball throw", "backward medicine ball", "crunch -",
+        ];
+        if (banned.some((word) => name.includes(word)) && level !== "Avanzato") return true;
+        if (limitations.includes("spalla") && ["shoulder", "press", "upright", "jerk", "snatch", "throw", "chest"].some((word) => name.includes(word)) && !["inclin", "scapolare", "face pull"].some((word) => name.includes(word))) return true;
+        if (limitations.includes("schiena") && ["good morning", "stiff", "yoke"].some((word) => name.includes(word))) return true;
+        if (limitations.includes("ginocchio") && ["jump", "bound"].some((word) => name.includes(word))) return true;
+        return false;
+      }
+
+      function shuffled(items) {
+        return [...items].sort(() => Math.random() - 0.5);
+      }
+
+      function isConditioningCategory(category) {
+        return ["Corsa base", "Corsa performance", "Bici", "Nuoto", "HIIT", "Dimagrimento/metabolico", "Condizionamento", "Performance", "Running"].includes(category);
+      }
+
+      function selectedConditioningCategory(anamnesis = {}) {
+        const types = anamnesis.trainingTypes || [];
+        const sports = (anamnesis.sports || []).join(" ").toLowerCase();
+        const equipment = anamnesis.equipment || [];
+        const availableTypes = types.filter(isConditioningCategory);
+        if (sports.includes("nuoto")) return "Nuoto";
+        if (sports.includes("ciclismo") || sports.includes("bike")) return "Bici";
+        if (sports.includes("running")) return "Corsa base";
+        if (["calcio", "tennis", "padel", "basket", "pallavolo"].some((sport) => sports.includes(sport))) return "Corsa performance";
+        if (availableTypes.length === 1) return availableTypes[0];
+        if (availableTypes.includes("HIIT")) return "HIIT";
+        if (availableTypes.includes("Bici") && equipment.includes("Bike")) return "Bici";
+        if (availableTypes.includes("Nuoto") && equipment.includes("Piscina")) return "Nuoto";
+        return availableTypes[0] || "Dimagrimento/metabolico";
+      }
+
+      function clientCuratedExercises() {
+        const rows = [
+          ["Goblet squat con pausa", "Forza in palestra", "squat/lunge", ["Manubri", "Kettlebell"], "Scendi controllato, fermo breve in basso e risali mantenendo ginocchia allineate e tronco stabile.", "Ginocchia che collassano, schiena arrotondata, rimbalzo in basso.", "4", "6-8", 120, "2", "3-1-1"],
+          ["Split squat con manubri", "Forza in palestra", "squat/lunge", ["Manubri", "Corpo libero"], "Passo stabile, busto leggermente inclinato e spinta dal piede davanti. Ottimo per sport di campo e racchetta.", "Passo troppo corto, ginocchio instabile, spinta solo sulla punta.", "3-4", "8-10 per lato", 90, "2", "3-1-1"],
+          ["Romanian deadlift con manubri", "Forza in palestra", "hinge", ["Manubri", "Bilanciere"], "Porta le anche indietro, schiena neutra e tensione sui femorali. Il carico resta vicino alle gambe.", "Piegare troppo le ginocchia, arrotondare la schiena, allontanare i pesi.", "4", "8-10", 120, "2", "3-1-1"],
+          ["Hip thrust con fermo", "Ipertrofia", "hinge", ["Bilanciere", "Manubri"], "Chiudi in alto con bacino stabile e fermo di un secondo. Cerca glutei, non zona lombare.", "Iperestendere la schiena, piedi troppo avanti, rimbalzare.", "4", "8-12", 105, "1-2", "2-1-2"],
+          ["Rematore petto supportato", "Forza in palestra", "tirata", ["Manubri", "Panca"], "Petto su panca inclinata e tirata senza slanci. Variante pulita per schiena e controllo scapolare.", "Staccare il petto, tirare col collo, perdere controllo in discesa.", "4", "8-12", 90, "2", "2-1-2"],
+          ["Lat machine presa neutra", "Forza in palestra", "tirata", ["Macchine palestra", "Cavi"], "Porta i gomiti verso le tasche e mantieni torace alto. Risali controllando le scapole.", "Tirare dietro il collo, slanciare il busto, chiudere le spalle.", "4", "8-10", 105, "2", "2-1-2"],
+          ["Push-up inclinato", "Forza in palestra", "spinta", ["Corpo libero"], "Mani su rialzo, corpo in linea e scapole controllate. Scegli altezza che permette tecnica pulita.", "Bacino che cade, gomiti troppo larghi, collo teso.", "3-4", "8-12", 75, "2", "2-1-1"],
+          ["Face pull elastico", "Prevenzione infortuni", "tirata", ["Elastici", "Cavi"], "Tira verso il viso con gomiti alti e scapole che ruotano bene. Utile per postura e spalla.", "Inarcare la schiena, tirare solo con braccia, elastico troppo duro.", "3", "12-15", 45, "3", "2-1-2"],
+          ["Pallof press", "Prevenzione infortuni", "core", ["Elastici", "Cavi"], "Spingi avanti resistendo alla rotazione. Bacino fermo e respiro controllato.", "Ruotare il busto, spalle alte, carico troppo forte.", "3", "8-12 per lato", 45, "3", "2-1-2"],
+          ["Dead bug respirato", "Mobilita e core", "core", ["Corpo libero"], "Costole giu, schiena stabile, espira mentre distendi braccio e gamba opposti.", "Inarcare la schiena, muoversi veloce, trattenere il respiro.", "3", "6-8 per lato", 40, "3", "lento"],
+          ["Step down controllato", "Prevenzione infortuni", "squat/lunge", ["Corpo libero", "Panca"], "Scendi lentamente da un rialzo basso controllando ginocchio, anca e piede.", "Ginocchio che cade dentro, rialzo troppo alto, discesa veloce.", "3", "6-8 per lato", 75, "3", "3-1-1"],
+          ["Corsa facile con allunghi", "Corsa base", "cardio", ["Corpo libero", "Tapis roulant"], "Ritmo conversazionale, poi 4-6 allunghi brevi con recupero camminando.", "Partire forte, trasformare gli allunghi in sprint, appoggi rumorosi.", "1", "30-45 min", 60, "3", "Z2"],
+          ["Bike intervalli moderati", "Bici", "cardio", ["Bike"], "Blocchi a intensita medio-alta ma ripetibile, cadenza regolare e postura stabile.", "Rapporto troppo duro, bacino instabile, partire troppo forte.", "4", "3 min medio / 2 min facile", 90, "2-3", "85-95 rpm"],
+          ["Mobilita anca 90/90", "Mobilita e core", "mobilita", ["Corpo libero"], "Transizioni lente tra posizioni 90/90, busto alto e controllo del respiro.", "Forzare il ginocchio, crollare col busto, usare slancio.", "2-3", "6 transizioni lente", 35, "4", "lento"],
+          ["World greatest stretch controllato", "Mobilita e core", "mobilita", ["Corpo libero"], "Affondo lungo, gomito verso il piede e rotazione toracica lenta. Prepara anche, colonna toracica e catena posteriore.", "Forzare la schiena, perdere appoggio del piede, muoversi troppo veloce.", "2", "4-5 per lato", 30, "4", "lento"],
+        ];
+        return rows.map((row, index) => ({
+          id: `client-curated-${index}`,
+          name: row[0],
+          source: "coachai-curated",
+          category: row[1],
+          movementPattern: row[2],
+          equipment: row[3],
+          level: ["Principiante", "Intermedio", "Avanzato"],
+          description: row[4],
+          commonErrors: row[5],
+          sets: row[6],
+          reps: row[7],
+          restSeconds: row[8],
+          rir: row[9],
+          tut: row[10],
+          images: [],
+        }));
+      }
+
       function selectRelevantExercises(db, anamnesis) {
         const selectedTypes = anamnesis.trainingTypes || [];
         const selectedEquipment = anamnesis.equipment || [];
         const level = anamnesis.level || "";
         const sportsText = (anamnesis.sports || []).join(" ").toLowerCase();
         const goalText = String(anamnesis.goal || "").toLowerCase();
-        const scored = db.map((ex) => {
+        const scored = db.filter((ex) => !clientIsLowQualityExercise(ex, anamnesis)).map((ex) => {
           let score = 0;
           if (!selectedTypes.length || selectedTypes.includes(ex.category)) score += 8;
+          if (ex.source === "coachai-curated") score += 18;
           if (!selectedEquipment.length || ex.equipment?.some((item) => selectedEquipment.includes(item))) score += 6;
           if (ex.equipment?.includes("Corpo libero")) score += 2;
           if (!level || ex.level?.includes(level)) score += 3;
@@ -1769,27 +2024,74 @@
         const minutes = Number(a.minutes || 60);
         const targetBlocks = minutes >= 75 ? 8 : minutes >= 55 ? 7 : minutes >= 40 ? 6 : 5;
         const sport = (a.sports || []).join(", ") || "fitness generale";
+        const source = exerciseDatabase.filter((ex) => !clientIsLowQualityExercise(ex, a));
+        if (source.length < 8) return defaultPlan(focus);
         const used = new Set();
+        const conditioningCategory = selectedConditioningCategory(a);
+        const split = {
+          1: [["squat/lunge", "hinge", "spinta", "tirata", "core"]],
+          2: [["squat/lunge", "spinta", "tirata", "core"], ["hinge", "tirata", "spinta", "mobilita"]],
+          3: [["squat/lunge", "hinge", "core", "mobilita"], ["spinta", "tirata", "spinta", "tirata", "core"], ["squat/lunge", "hinge", "cardio", "core"]],
+          4: [["squat/lunge", "hinge", "core"], ["spinta", "tirata", "spinta", "tirata"], ["squat/lunge", "hinge", "mobilita", "core"], ["cardio", "core", "mobilita"]],
+          5: [["squat/lunge", "hinge", "core"], ["spinta", "tirata", "spinta"], ["cardio", "core", "mobilita"], ["squat/lunge", "hinge", "core"], ["tirata", "spinta", "core", "mobilita"]],
+          6: [["squat/lunge", "hinge", "core"], ["spinta", "tirata", "spinta"], ["cardio", "core"], ["squat/lunge", "hinge", "mobilita"], ["tirata", "spinta", "core"], ["mobilita", "core", "squat/lunge"]],
+        }[days];
+        function categoryForPattern(pattern) {
+          if (pattern === "cardio") return [conditioningCategory];
+          if (pattern === "mobilita") return ["Mobilita e core", "Mobilità e core"];
+          return [];
+        }
+        function chooseFrom(pool, dayIndex, blockIndex) {
+          const unusedCurated = pool.filter((ex) => ex.source === "coachai-curated" && !used.has(ex.id || ex.name));
+          const curated = pool.filter((ex) => ex.source === "coachai-curated");
+          const preferred = unusedCurated.length ? unusedCurated : blockIndex === 0 && curated.length ? curated : pool;
+          const available = preferred.filter((ex) => !used.has(ex.id || ex.name));
+          const base = available.length ? available : preferred;
+          if (!base.length) return null;
+          const windowSize = Math.min(base.length, 14);
+          const offset = Math.floor(Math.random() * windowSize);
+          return base[(dayIndex * 3 + blockIndex + offset) % windowSize];
+        }
         function pick(dayIndex) {
           const picked = [];
-          let cursor = dayIndex * targetBlocks;
-          let attempts = 0;
-          while (picked.length < targetBlocks && attempts < exerciseDatabase.length) {
-            const ex = exerciseDatabase[cursor % exerciseDatabase.length];
-            cursor += 1;
-            attempts += 1;
-            if (!used.has(ex.id)) {
-              picked.push(ex);
-              used.add(ex.id);
-            }
+          const patterns = split[dayIndex] || split[0];
+          const warmupPool = source.filter((ex) => ["Mobilita e core", "Mobilità e core"].includes(ex.category));
+          const warmup = chooseFrom(warmupPool, dayIndex, 0);
+          if (warmup) {
+            picked.push({ ...warmup, blockType: "Riscaldamento" });
+            used.add(warmup.id || warmup.name);
           }
-          cursor = 0;
-          attempts = 0;
-          while (picked.length < targetBlocks && attempts < exerciseDatabase.length) {
-            const ex = exerciseDatabase[cursor % exerciseDatabase.length];
-            cursor += 1;
-            attempts += 1;
-            if (!picked.some((item) => item.id === ex.id)) picked.push(ex);
+          patterns.forEach((pattern, blockIndex) => {
+            if (picked.length >= targetBlocks - 1) return;
+            if (pattern === "cardio" && picked.some((item) => isConditioningCategory(item.category))) return;
+            const categories = categoryForPattern(pattern);
+            const pool = categories.length
+              ? source.filter((ex) => categories.includes(ex.category))
+              : source.filter((ex) => ex.movementPattern === pattern);
+            const ex = chooseFrom(pool.length ? pool : source, dayIndex, blockIndex + 1);
+            if (!ex) return;
+            picked.push({ ...ex, blockType: blockIndex === 0 && pattern !== "cardio" ? "Principale" : pattern === "cardio" ? "Condizionamento" : "Complementare" });
+            used.add(ex.id || ex.name);
+          });
+          while (picked.length < targetBlocks) {
+            const fillPattern = patterns[picked.length % patterns.length] || "";
+            if (fillPattern === "cardio" && picked.some((item) => isConditioningCategory(item.category))) {
+              const fallbackPattern = patterns.find((pattern) => pattern !== "cardio") || "";
+              const fallbackPool = source.filter((item) => item.movementPattern === fallbackPattern || (fallbackPattern === "mobilita" && ["Mobilita e core", "Mobilità e core"].includes(item.category)));
+              const ex = chooseFrom(fallbackPool.length ? fallbackPool : source.filter((item) => !isConditioningCategory(item.category)), dayIndex, picked.length + 1);
+              if (!ex || picked.some((item) => (item.id || item.name) === (ex.id || ex.name))) break;
+              picked.push({ ...ex, blockType: "Complementare" });
+              used.add(ex.id || ex.name);
+              continue;
+            }
+            const categories = categoryForPattern(fillPattern);
+            const pool = categories.length
+              ? source.filter((item) => categories.includes(item.category))
+              : source.filter((item) => item.movementPattern === fillPattern);
+            const ex = chooseFrom(pool.length ? pool : source, dayIndex, picked.length + 1);
+            if (!ex || picked.some((item) => (item.id || item.name) === (ex.id || ex.name))) break;
+            picked.push({ ...ex, blockType: fillPattern === "cardio" ? "Condizionamento" : "Complementare" });
+            used.add(ex.id || ex.name);
           }
           return picked;
         }
@@ -1807,8 +2109,8 @@
             exercises: pick(dayIndex).map((ex) => ({
               id: uid(),
               name: ex.name,
-              type: ex.category,
-              description: ex.description || "Esegui il movimento in modo controllato, rispettando tecnica, respirazione e assenza di dolore.",
+              type: ex.blockType || ex.category,
+              description: `${ex.blockType || "Blocco tecnico"}: ${ex.description || "Esegui il movimento in modo controllato, rispettando tecnica, respirazione e assenza di dolore."}`,
               commonErrors: ex.commonErrors || "Evita compensi, movimenti bruschi, carichi eccessivi e range dolorosi.",
               sets: ex.sets || "3",
               reps: ex.reps || "8-12",
@@ -1829,44 +2131,24 @@
         user.anamnesis = readAnamnesis();
         const focus = document.getElementById("planFocus").value;
         const status = document.getElementById("planStatus");
-        if (status) status.textContent = "Sto costruendo la scheda con il motore CoachAI...";
+        if (status) status.textContent = "Sto scegliendo la scheda progressiva più adatta...";
         setBusy("generatePlanBtn", "Generazione...");
-        let exerciseDatabase = [];
         let generatedPlan = null;
         try {
-          const db = await loadExerciseDatabase();
-          exerciseDatabase = db.length ? selectRelevantExercises(db, user.anamnesis) : [];
-          if (status) status.textContent = `Database esercizi caricato: ${exerciseDatabase.length || "fallback"} esercizi utili. Creo la bozza tecnica...`;
-          const draft = await buildProgramDraft({
-            user: { name: user.name },
-            anamnesis: user.anamnesis,
-            progress: user.progress || [],
-            focus,
-            exerciseDatabase,
-          });
-          if (status) status.textContent = "Bozza tecnica pronta. Rifinisco con Andrea IA...";
-          const result = await askAi("generate_plan", {
-            user: { name: user.name },
-            anamnesis: user.anamnesis,
-            progress: user.progress || [],
-            focus,
-            exerciseDatabase,
-            programDraft: draft.plan,
-          });
-          generatedPlan = normalizePlan(result.plan || draft.plan || defaultPlan(focus), focus);
+          generatedPlan = normalizePlan(templatePlan(focus), focus);
         } catch (error) {
           console.error("Errore generazione scheda", error);
-          if (status) status.textContent = "Uso la generazione locale di sicurezza...";
-          generatedPlan = normalizePlan(localAi("generate_plan", { focus, exerciseDatabase }).plan, focus);
+          if (status) status.textContent = "Uso la scheda base di sicurezza...";
+          generatedPlan = normalizePlan(defaultPlan(focus), focus);
         } finally {
           user.plans = Array.isArray(user.plans) ? user.plans : [];
           if (generatedPlan) user.plans.push(generatedPlan);
           saveState();
-          clearBusy("generatePlanBtn", "Genera con AI");
+          clearBusy("generatePlanBtn", "Genera scheda");
           try {
             renderPlan();
             renderDashboard();
-            if (status) status.textContent = generatedPlan ? "Scheda generata." : "Non sono riuscito a generare la scheda. Controlla i dati del profilo e riprova.";
+            if (status) status.textContent = generatedPlan ? "Scheda progressiva pronta. Per personalizzazioni avanzate: humanperformancelab.app@gmail.com" : "Non sono riuscito a generare la scheda. Controlla i dati del profilo e riprova.";
           } catch (error) {
             console.error("Errore visualizzazione scheda", error);
             if (status) status.textContent = "Scheda creata, ma c'è un problema di visualizzazione. Prova Pulisci dati profilo o ricarica la pagina.";
@@ -1876,6 +2158,24 @@
 
       function normalizePlan(plan, focus) {
         const fallback = defaultPlan(focus);
+        function cleanDayExercises(exercises = []) {
+          let hasConditioning = false;
+          const cleaned = exercises.filter((ex) => {
+            const category = ex.type || "";
+            if (!isConditioningCategory(category)) return true;
+            if (hasConditioning) return false;
+            hasConditioning = true;
+            return true;
+          });
+          const fillers = [templateExercises.deadBug, templateExercises.plank, templateExercises.pallof, templateExercises.facePull];
+          let cursor = 0;
+          while (cleaned.length < 4) {
+            const next = fillers[cursor % fillers.length]();
+            cursor += 1;
+            if (!cleaned.some((item) => item.name === next.name)) cleaned.push(next);
+          }
+          return cleaned;
+        }
         return {
           ...fallback,
           ...plan,
@@ -1884,7 +2184,7 @@
           days: Array.isArray(plan.days) && plan.days.length ? plan.days.map((day) => ({
             name: day.name || "Allenamento",
             focus: day.focus || "",
-            exercises: (day.exercises || []).map((ex) => ({
+            exercises: cleanDayExercises(day.exercises || []).map((ex) => ({
               id: uid(),
               name: ex.name || "Esercizio",
               description: ex.description || "Esegui con tecnica controllata e respirazione regolare.",
