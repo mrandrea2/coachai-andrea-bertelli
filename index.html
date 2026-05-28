@@ -1077,7 +1077,7 @@
         <nav class="nav" aria-label="Sezioni app">
           <button class="active" data-section="dashboard" type="button">Dashboard</button>
           <button data-section="anamnesi" type="button">Anamnesi</button>
-          <button data-section="scheda" type="button">Scheda AI</button>
+          <button data-section="scheda" type="button">Schede</button>
           <button data-section="progressi" type="button">Progressi</button>
           <button data-section="chat" type="button">Andrea IA</button>
           <button data-section="coach" type="button">Coach/Admin</button>
@@ -1185,11 +1185,9 @@
             </div>
 
             <div class="panel">
-              <h3>Sport e materiale</h3>
+              <h3>Sport e contesto</h3>
               <label>Sport praticato</label>
               <div id="sportsChecks" class="checks"></div>
-              <label style="margin-top: 18px">Tipi di allenamento possibili</label>
-              <div id="trainingTypeChecks" class="checks"></div>
               <label style="margin-top: 18px">Contesto di allenamento</label>
               <div id="equipmentChecks" class="checks"></div>
               <div class="grid cols-3" style="margin-top: 18px">
@@ -1218,10 +1216,10 @@
         <section id="scheda" class="section">
           <div class="grid cols-2">
             <div class="panel">
-              <h3>Genera scheda personalizzata</h3>
+              <h3>Catalogo schede preimpostate</h3>
               <div class="field">
-                <label for="planFocus">Focus della nuova scheda</label>
-                <textarea id="planFocus" placeholder="Es. più forza gambe per tennis, ridurre stress lombare, aumentare massa..."></textarea>
+                <label for="planFocus">Nota facoltativa</label>
+                <textarea id="planFocus" placeholder="Es. vorrei partire con calma, preferisco macchine, fastidio alla spalla..."></textarea>
               </div>
               <div class="top-actions" style="justify-content: flex-start">
                 <button id="generatePlanBtn" class="btn brand" type="button">Genera scheda</button>
@@ -1230,7 +1228,7 @@
               </div>
               <p id="planStatus" class="muted" style="margin-top: 10px"></p>
               <p class="muted">
-                Versione gratuita: schede preimpostate progressive. Per personalizzazioni reali su dolore, tecnica, sport e obiettivi scrivi ad Andrea.
+                Scegli una scheda dal catalogo o usa il pulsante per generare quella coerente con il profilo.
               </p>
             </div>
             <div class="panel soft">
@@ -1241,6 +1239,7 @@
               </p>
             </div>
           </div>
+          <div id="templateCatalog" class="grid cols-3" style="margin-top: 18px"></div>
           <div id="planOutput" class="grid" style="margin-top: 18px"></div>
         </section>
 
@@ -1474,6 +1473,20 @@
         { key: "prevenzione", label: "Ritorno graduale / prevenzione", match: ["ritorno", "prevenzione"] },
       ];
 
+      const templateCatalog = [
+        { key: "dimagrimento", label: "Dimagrimento", goal: "Dimagrimento e ricomposizione", sports: [] },
+        { key: "ipertrofia", label: "Ipertrofia", goal: "Ipertrofia", sports: [] },
+        { key: "forza", label: "Forza", goal: "Forza", sports: [] },
+        { key: "performance", label: "Performance", goal: "Performance sportiva", sports: [] },
+        { key: "benessere", label: "Benessere", goal: "Benessere generale", sports: [] },
+        { key: "prevenzione", label: "Rientro / prevenzione", goal: "Ritorno graduale all’attività", sports: [] },
+        { key: "tennis", label: "Tennis / padel", goal: "Performance sportiva", sports: ["Tennis"] },
+        { key: "calcio", label: "Calcio", goal: "Performance sportiva", sports: ["Calcio"] },
+        { key: "running", label: "Running", goal: "Benessere generale", sports: ["Running"] },
+        { key: "ciclismo", label: "Ciclismo", goal: "Benessere generale", sports: ["Ciclismo"] },
+        { key: "nuoto", label: "Nuoto", goal: "Benessere generale", sports: ["Nuoto"] },
+      ];
+
       function templateKey(anamnesis = {}) {
         const sport = (anamnesis.sports || []).join(" ").toLowerCase();
         if (sport.includes("tennis") || sport.includes("padel")) return "tennis";
@@ -1625,9 +1638,12 @@
         document.getElementById("sportsChecks").innerHTML = sports.map((item) => `
           <label class="check"><input type="checkbox" name="sports" value="${item}">${item}</label>
         `).join("");
-        document.getElementById("trainingTypeChecks").innerHTML = trainingTypes.map((item) => `
-          <label class="check"><input type="checkbox" name="trainingTypes" value="${item}">${item}</label>
-        `).join("");
+        const trainingBox = document.getElementById("trainingTypeChecks");
+        if (trainingBox) {
+          trainingBox.innerHTML = trainingTypes.map((item) => `
+            <label class="check"><input type="checkbox" name="trainingTypes" value="${item}">${item}</label>
+          `).join("");
+        }
         document.getElementById("equipmentChecks").innerHTML = equipment.map((item) => `
           <label class="check"><input type="checkbox" name="equipment" value="${item}">${item}</label>
         `).join("");
@@ -1640,6 +1656,7 @@
         document.querySelector('[data-section="coach"]').classList.toggle("hidden", user.role !== "coach");
         populateForms();
         renderDashboard();
+        renderTemplateCatalog();
         renderPlan();
         renderProgress();
         renderCoach();
@@ -1698,6 +1715,22 @@
         document.getElementById("lastPlanSummary").textContent = latest
           ? `${latest.title} - ${new Date(latest.createdAt).toLocaleDateString("it-IT")}`
           : "Nessuna scheda generata.";
+      }
+
+      function renderTemplateCatalog() {
+        const box = document.getElementById("templateCatalog");
+        if (!box) return;
+        box.innerHTML = templateCatalog.map((item) => `
+          <div class="panel">
+            <h3>${escapeHtml(item.label)}</h3>
+            <p class="muted">Tre schede progressive: base, intermedia, avanzata.</p>
+            <div class="top-actions" style="justify-content:flex-start">
+              <button class="btn secondary" type="button" onclick="selectTemplate('${item.key}', 0)">Livello 1</button>
+              <button class="btn secondary" type="button" onclick="selectTemplate('${item.key}', 1)">Livello 2</button>
+              <button class="btn secondary" type="button" onclick="selectTemplate('${item.key}', 2)">Livello 3</button>
+            </div>
+          </div>
+        `).join("");
       }
 
       function switchSection(id) {
@@ -2392,6 +2425,24 @@
         user.anamnesis = readAnamnesis();
         user.anamnesis.level = "Principiante";
         document.getElementById("level").value = "Principiante";
+        saveState();
+        generatePlan();
+      };
+
+      window.selectTemplate = function selectTemplate(key, level) {
+        const selected = templateCatalog.find((item) => item.key === key);
+        if (!selected) return;
+        const user = currentUser();
+        user.templateLevel = Math.max(0, Math.min(2, Number(level) || 0));
+        user.anamnesis = {
+          ...readAnamnesis(),
+          goal: selected.goal,
+          level: levelName(user.templateLevel),
+          sports: selected.sports,
+        };
+        document.getElementById("goal").value = selected.goal;
+        document.getElementById("level").value = levelName(user.templateLevel);
+        setCheckedValues("sports", selected.sports);
         saveState();
         generatePlan();
       };
