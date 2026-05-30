@@ -18,10 +18,12 @@
         --line: #d8d2c7;
         --brand: #0f766e;
         --brand-dark: #094b46;
+        --brand-soft: #dff4ef;
         --accent: #f2b705;
+        --accent-soft: #fff3bf;
         --danger: #b42318;
         --ok: #137333;
-        --shadow: 0 18px 50px rgba(17, 18, 20, 0.12);
+        --shadow: 0 16px 36px rgba(17, 18, 20, 0.1);
         --radius: 8px;
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -179,7 +181,7 @@
         padding: 30px;
         max-width: 1320px;
         width: 100%;
-        background: rgba(251, 250, 247, 0.84);
+        background: rgba(251, 250, 247, 0.9);
         backdrop-filter: blur(2px);
       }
 
@@ -217,6 +219,15 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease,
+          background 0.15s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(17, 18, 20, 0.12);
       }
 
       .btn.secondary {
@@ -248,7 +259,7 @@
 
       .panel {
         background: var(--panel);
-        border: 2px solid var(--ink);
+        border: 1px solid rgba(17, 18, 20, 0.16);
         border-radius: var(--radius);
         box-shadow: var(--shadow);
         padding: 20px;
@@ -268,6 +279,17 @@
         display: grid;
         gap: 10px;
         margin-bottom: 18px;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.94), rgba(17, 18, 20, 0.94)),
+          url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80");
+        background-size: cover;
+        background-position: center;
+        color: #fff;
+        min-height: 250px;
+        align-content: end;
+        border: 0;
+        position: relative;
+        overflow: hidden;
       }
 
       .hero-brand h3 {
@@ -280,6 +302,140 @@
         font-size: 22px;
         font-weight: 850;
         margin: 0;
+        max-width: 760px;
+      }
+
+      .hero-kpis,
+      .plan-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .kpi {
+        background: #fff;
+        border: 1px solid rgba(17, 18, 20, 0.12);
+        border-left: 6px solid var(--brand);
+        border-radius: var(--radius);
+        padding: 14px;
+        min-height: 96px;
+        display: grid;
+        align-content: space-between;
+      }
+
+      .kpi strong {
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .kpi span {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 850;
+      }
+
+      .catalog-card {
+        display: grid;
+        gap: 14px;
+        min-height: 230px;
+        align-content: space-between;
+        position: relative;
+      }
+
+      .catalog-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 5px;
+        background: linear-gradient(90deg, var(--brand), var(--accent));
+        border-radius: var(--radius) var(--radius) 0 0;
+      }
+
+      .catalog-head {
+        display: grid;
+        gap: 6px;
+        padding-top: 6px;
+      }
+
+      .catalog-head h3 {
+        margin-bottom: 0;
+      }
+
+      .catalog-levels {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .level-btn {
+        min-height: 58px;
+        padding: 8px;
+        display: grid;
+        gap: 2px;
+        font-size: 13px;
+        line-height: 1.05;
+      }
+
+      .level-btn strong {
+        font-size: 16px;
+      }
+
+      .plan-header {
+        display: grid;
+        gap: 14px;
+      }
+
+      .success-banner,
+      .coach-banner {
+        border-radius: var(--radius);
+        padding: 16px;
+        display: grid;
+        gap: 8px;
+        border: 2px solid var(--ink);
+      }
+
+      .success-banner {
+        background: #e9fbef;
+        border-color: var(--ok);
+        color: #0f4d23;
+      }
+
+      .coach-banner {
+        background: linear-gradient(135deg, #101312, #0f766e);
+        color: #fff;
+        border: 0;
+        box-shadow: var(--shadow);
+      }
+
+      .coach-banner h3,
+      .success-banner h3 {
+        margin: 0;
+      }
+
+      .coach-banner a {
+        color: var(--accent);
+        font-weight: 950;
+      }
+
+      .plan-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .level-chip {
+        background: var(--ink);
+        color: #fff;
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 13px;
+        font-weight: 950;
+      }
+
+      .exercise-count {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 850;
       }
 
       .link-card {
@@ -439,10 +595,11 @@
       }
 
       .exercise {
-        border: 2px solid var(--line);
+        border: 1px solid rgba(17, 18, 20, 0.14);
         border-radius: var(--radius);
         padding: 14px;
         background: #fff;
+        box-shadow: 0 6px 16px rgba(17, 18, 20, 0.05);
       }
 
       .exercise.done {
@@ -454,6 +611,7 @@
         cursor: pointer;
         font-weight: 950;
         font-size: 20px;
+        list-style-position: outside;
       }
 
       .exercise-grid {
@@ -486,6 +644,7 @@
         display: grid;
         gap: 12px;
         margin-bottom: 18px;
+        border-left: 6px solid var(--brand);
       }
 
       .chat-box {
@@ -700,7 +859,9 @@
 
         .cols-2,
         .cols-3,
-        .exercise-grid {
+        .exercise-grid,
+        .hero-kpis,
+        .plan-metrics {
           grid-template-columns: 1fr;
         }
       }
@@ -805,7 +966,7 @@
 
         .panel {
           padding: 14px;
-          border-width: 2px;
+          border-width: 1px;
           box-shadow: 0 8px 22px rgba(17, 18, 20, 0.1);
         }
 
@@ -816,6 +977,7 @@
 
         .hero-brand {
           margin-bottom: 12px;
+          min-height: 190px;
         }
 
         .hero-brand h3 {
@@ -831,7 +993,7 @@
         }
 
         .checks {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: 1fr;
           gap: 8px;
         }
 
@@ -888,6 +1050,7 @@
         .workout-day {
           gap: 10px;
           margin-bottom: 12px;
+          border-left-width: 4px;
         }
 
         .session-tools {
@@ -902,6 +1065,26 @@
         .exercise summary {
           font-size: 18px;
           line-height: 1.2;
+        }
+
+        .catalog-card {
+          min-height: 0;
+        }
+
+        .catalog-levels {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .level-btn {
+          min-height: 50px;
+        }
+
+        .kpi {
+          min-height: 74px;
+        }
+
+        .kpi strong {
+          font-size: 24px;
         }
 
         .exercise-grid {
@@ -1100,7 +1283,17 @@
         <section id="dashboard" class="section active">
           <div class="panel hero-brand">
             <h3>CoachAI</h3>
-            <p>Schede intelligenti, allenamenti tracciabili, progressioni su misura.</p>
+            <p>Schede progressive gratuite, allenamenti interattivi e consulenza avanzata con Andrea Bertelli.</p>
+          </div>
+          <div class="hero-kpis" style="margin-bottom: 18px">
+            <div class="kpi"><strong>27</strong><span>Schede pronte per obiettivo e livello</span></div>
+            <div class="kpi"><strong>3</strong><span>Step progressivi: base, volume, intensità</span></div>
+            <div class="kpi"><strong>AI</strong><span>Andrea IA per dubbi, tecnica e progressione</span></div>
+          </div>
+          <div class="coach-banner" style="margin-bottom:18px">
+            <h3>Per schede più personalizzate e percorsi mirati</h3>
+            <p>La versione gratuita offre schede preimpostate. Per adattamenti su obiettivi, dolori, tecnica, nutrizione e progressi scrivi ad Andrea.</p>
+            <a href="mailto:humanperformancelab.app@gmail.com">humanperformancelab.app@gmail.com</a>
           </div>
           <div class="grid cols-3">
             <div class="panel">
@@ -1185,24 +1378,6 @@
             </div>
 
             <div class="panel">
-              <h3>Sport e contesto</h3>
-              <label>Sport praticato</label>
-              <div id="sportsChecks" class="checks"></div>
-              <label style="margin-top: 18px">Contesto di allenamento</label>
-              <div id="equipmentChecks" class="checks"></div>
-              <div class="grid cols-3" style="margin-top: 18px">
-                <div class="field">
-                  <label for="days">Allenamenti a settimana</label>
-                  <input id="days" type="number" min="1" max="7" value="3" />
-                </div>
-                <div class="field">
-                  <label for="minutes">Minuti per seduta</label>
-                  <input id="minutes" type="number" min="20" max="150" value="60" />
-                </div>
-              </div>
-            </div>
-
-            <div class="panel">
               <h3>Preferenze</h3>
               <div class="field">
                 <label for="preferences">Esercizi preferiti, non graditi, note logistiche</label>
@@ -1217,9 +1392,24 @@
           <div class="grid cols-2">
             <div class="panel">
               <h3>Catalogo schede preimpostate</h3>
+              <div class="plan-meta">
+                <span class="level-chip">Free</span>
+                <span class="tag">27 schede</span>
+                <span class="tag">Tracking carichi</span>
+                <span class="tag">Timer recupero</span>
+              </div>
               <div class="field">
                 <label for="planFocus">Nota facoltativa</label>
                 <textarea id="planFocus" placeholder="Es. vorrei partire con calma, preferisco macchine, fastidio alla spalla..."></textarea>
+              </div>
+              <div class="field">
+                <label for="planDays">Allenamenti a settimana</label>
+                <select id="planDays">
+                  <option value="2">2 sedute</option>
+                  <option value="3" selected>3 sedute</option>
+                  <option value="4">4 sedute</option>
+                  <option value="5">5 sedute</option>
+                </select>
               </div>
               <div class="top-actions" style="justify-content: flex-start">
                 <button id="generatePlanBtn" class="btn brand" type="button">Genera scheda</button>
@@ -1232,14 +1422,25 @@
               </p>
             </div>
             <div class="panel soft">
-              <h3>Regole di sicurezza</h3>
+              <h3>Andrea IA e consulenza</h3>
               <p>
-                La scheda è educativa e va adattata alla tecnica, ai sintomi e al contesto reale.
-                Se compare dolore, interrompi e chiedi valutazione medica o consulenza.
+                Usa Andrea IA per domande su tecnica, progressione, recuperi e dubbi generali.
+                Per una scheda realmente personalizzata scrivi a
+                <a href="mailto:humanperformancelab.app@gmail.com">humanperformancelab.app@gmail.com</a>.
               </p>
+              <button class="btn brand" data-section-jump="chat" type="button">Chiedi ad Andrea IA</button>
             </div>
           </div>
+          <div id="planSuccessBanner" class="success-banner hidden" style="margin-top:18px">
+            <h3>Scheda generata correttamente</h3>
+            <p>Ora puoi seguirla, segnare carichi, usare il timer e chiedere suggerimenti ad Andrea IA.</p>
+          </div>
           <div id="templateCatalog" class="grid cols-3" style="margin-top: 18px"></div>
+          <div class="coach-banner" style="margin-top:18px">
+            <h3>Vuoi una scheda davvero su misura?</h3>
+            <p>Per obiettivi specifici, dolori, tecnica, sport, nutrizione e progressioni mirate richiedi una consulenza con Andrea.</p>
+            <a href="mailto:humanperformancelab.app@gmail.com">humanperformancelab.app@gmail.com</a>
+          </div>
           <div id="planOutput" class="grid" style="margin-top: 18px"></div>
         </section>
 
@@ -1276,6 +1477,11 @@
         </section>
 
         <section id="chat" class="section">
+          <div class="coach-banner">
+            <h3>Andrea IA è il tuo supporto rapido</h3>
+            <p>Chiedi consigli su tecnica, carichi, recuperi, progressione, alternative e dubbi generali. Per un percorso personalizzato contatta Andrea.</p>
+            <a href="mailto:humanperformancelab.app@gmail.com">humanperformancelab.app@gmail.com</a>
+          </div>
           <div class="notice danger-note">
             Andrea IA risponde per informazione generale. Non fornisce diagnosi né sostituisce medico,
             psicologo, nutrizionista o valutazione dal vivo. Per problemi clinici scrivi a
@@ -1480,14 +1686,14 @@
         { key: "performance", label: "Performance", goal: "Performance sportiva", sports: [] },
         { key: "benessere", label: "Benessere", goal: "Benessere generale", sports: [] },
         { key: "prevenzione", label: "Rientro / prevenzione", goal: "Ritorno graduale all’attività", sports: [] },
-        { key: "tennis", label: "Tennis / padel", goal: "Performance sportiva", sports: ["Tennis"] },
-        { key: "calcio", label: "Calcio", goal: "Performance sportiva", sports: ["Calcio"] },
-        { key: "running", label: "Running", goal: "Benessere generale", sports: ["Running"] },
-        { key: "ciclismo", label: "Ciclismo", goal: "Benessere generale", sports: ["Ciclismo"] },
+        { key: "running", label: "Corsa / cardio", goal: "Benessere generale", sports: ["Running"] },
+        { key: "ciclismo", label: "Bike", goal: "Benessere generale", sports: ["Ciclismo"] },
         { key: "nuoto", label: "Nuoto", goal: "Benessere generale", sports: ["Nuoto"] },
       ];
 
       function templateKey(anamnesis = {}) {
+        const selectedKey = currentUser()?.templateKey;
+        if (selectedKey && templateCatalog.some((item) => item.key === selectedKey)) return selectedKey;
         const sport = (anamnesis.sports || []).join(" ").toLowerCase();
         if (sport.includes("tennis") || sport.includes("padel")) return "tennis";
         if (sport.includes("calcio")) return "calcio";
@@ -1511,6 +1717,233 @@
 
       function day(name, focus, exercises) {
         return { name, focus, sessionFeedback: "", aiSuggestion: "", exercises: exercises.map((factory) => factory()) };
+      }
+
+      function progressionProfile(phase) {
+        return [
+          {
+            label: "Base tecnica",
+            focus: "apprendimento, controllo, margine alto",
+            strengthSets: "2-3",
+            strengthReps: "10-12",
+            accessorySets: "2",
+            accessoryReps: "12-15",
+            restDelta: -15,
+            rir: "3-4",
+            tut: "3-1-2",
+            note: "Livello 1: carichi facili, tecnica pulita, nessuna serie a cedimento.",
+          },
+          {
+            label: "Progressione volume",
+            focus: "piu volume, carichi medi, progressione controllata",
+            strengthSets: "3-4",
+            strengthReps: "8-10",
+            accessorySets: "3",
+            accessoryReps: "10-12",
+            restDelta: 0,
+            rir: "2-3",
+            tut: "3-1-1",
+            note: "Livello 2: aumenta volume e carico solo se completi il livello 1 senza dolore.",
+          },
+          {
+            label: "Avanzamento intensita",
+            focus: "intensita, densita, lavoro piu specifico",
+            strengthSets: "4-5",
+            strengthReps: "5-8",
+            accessorySets: "3-4",
+            accessoryReps: "8-12",
+            restDelta: 20,
+            rir: "1-2",
+            tut: "2-1-1",
+            note: "Livello 3: piu impegnativo; resta lontano dal cedimento se tecnica o recupero peggiorano.",
+          },
+        ][Math.max(0, Math.min(2, Number(phase) || 0))];
+      }
+
+      function levelExerciseVariant(exercise, phase) {
+        const variants = {
+          "Goblet squat con pausa": [
+            ["Box squat tecnico", "Squat su box basso o panca, controllo della discesa e pausa leggera prima di risalire. Ideale per imparare profondita, assetto e spinta dei piedi."],
+            ["Goblet squat con pausa", "Squat con carico al petto, discesa controllata, fermo breve in basso e risalita stabile. Priorita a ginocchia allineate e busto solido."],
+            ["Squat guidato o leg press pesante tecnica", "Variante piu caricabile: squat guidato, front squat leggero o leg press. Mantieni controllo completo e non sacrificare la profondita utile."],
+          ],
+          "Split squat controllato": [
+            ["Affondo indietro a corpo libero", "Passo indietro controllato, busto stabile e spinta dal piede davanti. Variante base per imparare controllo monopodalico."],
+            ["Split squat con manubri", "Affondo statico con carico moderato, passo stabile e bacino fermo. Ottimo per gambe, glutei e sport."],
+            ["Bulgarian split squat", "Piede posteriore su rialzo, discesa controllata e spinta forte dal piede davanti. Variante intensa: usa carichi prudenti."],
+          ],
+          "Romanian deadlift": [
+            ["Hip hinge con bastone o manubri leggeri", "Impara il movimento d'anca: anche indietro, schiena neutra e tensione sui femorali senza cercare carico."],
+            ["Romanian deadlift con manubri", "Porta le anche indietro, carico vicino alle gambe e schiena neutra. Devi sentire femorali e glutei."],
+            ["Romanian deadlift bilanciere", "Variante piu caricabile con bilanciere. Mantieni traiettoria vicina, controllo eccentrico e nessun rimbalzo."],
+          ],
+          "Hip thrust con fermo": [
+            ["Glute bridge a terra", "Ponte glutei a terra, fermo in alto e controllo del bacino. Variante base per attivare i glutei."],
+            ["Hip thrust con fermo", "Spinta d'anca con fermo in alto. Bacino stabile, costole giu, chiusura sui glutei."],
+            ["Hip thrust caricato con pausa lunga", "Hip thrust piu intenso con carico progressivo e fermo di 2 secondi in alto. Mantieni RIR indicato."],
+          ],
+          "Push-up inclinato o chest press": [
+            ["Push-up alto su rialzo", "Mani su panca o supporto alto, corpo in linea e movimento controllato. Adatta l'altezza per restare pulito."],
+            ["Chest press macchina o push-up basso", "Spinta orizzontale con carico moderato o push-up piu basso. Mantieni scapole stabili e gomiti controllati."],
+            ["Distensioni manubri su panca", "Panca piana o inclinata leggera con manubri. Maggiore richiesta di stabilita: controlla discesa e spinta."],
+          ],
+          "Floor press o chest press": [
+            ["Chest press macchina tecnica", "Spinta guidata, carico facile e controllo della traiettoria. Utile per costruire base senza stressare le spalle."],
+            ["Floor press con manubri", "Spinta da terra, gomiti controllati e scapole stabili. Variante intermedia sicura e progressiva."],
+            ["Distensione manubri su panca neutra", "Spinta piu completa con manubri e presa neutra. Lavora pesante ma senza perdere assetto."],
+          ],
+          "Rematore manubrio o pulley": [
+            ["Rematore elastico", "Tirata con elastico, busto stabile e gomiti verso il fianco. Variante base per percepire dorsali e scapole."],
+            ["Rematore manubrio con fermo", "Tira il gomito verso il fianco, fermo breve in chiusura e discesa controllata."],
+            ["Rematore petto supportato", "Petto su panca inclinata, carico piu alto e slancio minimo. Ottimo per intensita pulita sulla schiena."],
+          ],
+          "Lat machine presa neutra": [
+            ["Pulldown elastico o lat machine leggera", "Tirata verticale facile, gomiti verso le tasche e controllo scapolare."],
+            ["Lat machine presa neutra", "Gomiti verso le tasche, torace alto, risalita controllata. Fermati prima di compensare."],
+            ["Lat machine presa neutra pesante controllata", "Stesso pattern con carico piu sfidante, fermo breve in basso e risalita lenta."],
+          ],
+          "Plank / side plank": [
+            ["Plank corto", "Tenuta breve con bacino stabile e respiro regolare. Interrompi prima di compensare."],
+            ["Side plank", "Tenuta laterale con bacino alto e spalla stabile. Mantieni respirazione fluida."],
+            ["Side plank con abduzione o carry", "Variante avanzata: side plank con sollevamento gamba o farmer carry pesante controllato."],
+          ],
+          "Dead bug respirato": [
+            ["Dead bug base", "Movimento lento con ginocchia piegate, costole giu e lombare stabile."],
+            ["Dead bug alternato completo", "Distendi braccio e gamba opposti mantenendo controllo respiratorio e bacino fermo."],
+            ["Dead bug con elastico o hollow hold regressione", "Variante piu intensa per core: mantieni costole giu e controllo totale."],
+          ],
+          "Pallof press": [
+            ["Pallof press isometrico", "Tieni la posizione con elastico leggero, bacino fermo e respirazione regolare."],
+            ["Pallof press dinamico", "Spingi e rientra controllando la rotazione, senza muovere bacino e spalle."],
+            ["Pallof press in affondo", "Variante avanzata in posizione split stance o affondo, maggiore richiesta di stabilita."],
+          ],
+          "Face pull elastico o cavo": [
+            ["Extrarotazione elastico", "Gomito vicino al fianco, movimento piccolo e preciso. Base per controllo della spalla."],
+            ["Face pull elastico o cavo", "Tira verso il viso con gomiti alti e scapole controllate. Utile per postura e spalla."],
+            ["Face pull + extrarotazione", "Tirata al viso con rotazione esterna finale. Variante piu completa, carico leggero e tecnica alta."],
+          ],
+          "Calf raise controllato": [
+            ["Calf raise bipodalico", "Salita su due piedi, fermo in alto e discesa lenta. Costruisci controllo della caviglia."],
+            ["Calf raise monopodalico assistito", "Una gamba alla volta con appoggio leggero. Movimento completo e ritmo controllato."],
+            ["Calf raise caricato", "Variante con manubri o macchina, carico progressivo e discesa lenta."],
+          ],
+          "Step down controllato": [
+            ["Step down basso", "Rialzo basso, discesa lenta e controllo ginocchio-piede. Qualita prima dell'altezza."],
+            ["Step down controllato", "Scendi da un rialzo medio controllando ginocchio, anca e piede."],
+            ["Step down alto o laterale", "Variante piu intensa e specifica: rialzo maggiore solo se il controllo resta ottimo."],
+          ],
+          "Cardio zona 2": [
+            ["Camminata inclinata facile", "Ritmo facile-moderato, respirazione controllata e postura alta. Base aerobica a basso impatto."],
+            ["Cardio zona 2", "Ritmo facile-moderato: riesci a parlare a frasi brevi. Scegli corsa, camminata, bici o ellittica."],
+            ["Cardio progressivo zona 2-3", "Parti facile e chiudi leggermente piu sostenuto, senza trasformarlo in gara."],
+          ],
+          "Intervalli controllati": [
+            ["Intervalli tecnici leggeri", "Blocchi brevi e facili, intensita moderata e recupero completo."],
+            ["Intervalli controllati", "Blocchi intensi ma ripetibili. Mantieni tecnica e recupera abbastanza per non sporcare il gesto."],
+            ["Intervalli intensivi ripetibili", "Blocchi piu impegnativi ma non massimali. Obiettivo: ripetere qualita, non distruggersi."],
+          ],
+          "Cambi direzione controllati": [
+            ["Frenate tecniche", "Esercizi brevi di decelerazione: pochi metri, appoggio silenzioso e ginocchio stabile."],
+            ["Cambi direzione controllati", "Accelerazione breve, frenata controllata e ripartenza. Focus su appoggi e stabilita."],
+            ["Cambi direzione reattivi", "Cambi direzione piu rapidi e specifici, recupero completo e qualita alta."],
+          ],
+          "Corsa facile con allunghi": [
+            ["Run-walk facile", "Alterna corsa facile e cammino per costruire base senza accumulare fatica."],
+            ["Corsa facile con allunghi", "Ritmo conversazionale e 4-6 allunghi brevi finali. Tecnica rilassata."],
+            ["Corsa facile + allunghi tecnici", "Volume facile con allunghi piu curati e progressivi. Mantieni appoggi leggeri."],
+          ],
+          "Tempo run controllato": [
+            ["Corsa progressiva facile", "Parti molto facile e aumenta leggermente il ritmo negli ultimi minuti."],
+            ["Tempo run controllato", "Blocco sostenuto ma gestibile. Devi chiudere ordinato, non distrutto."],
+            ["Tempo run a blocchi", "2-3 blocchi sostenuti con recupero facile. Intensita alta ma controllata."],
+          ],
+          "Bici aerobica": [
+            ["Bici facile tecnica", "Pedalata facile, cadenza fluida e postura comoda. Base aerobica."],
+            ["Bici aerobica", "Pedalata fluida a ritmo facile-moderato. Cadenza regolare e bacino stabile."],
+            ["Bici fondo progressivo", "Seduta piu lunga o progressiva, chiusura sostenuta ma controllata."],
+          ],
+          "Bici intervalli moderati": [
+            ["Bici variazioni leggere", "Brevi cambi di ritmo senza arrivare ad alta intensita."],
+            ["Bici intervalli moderati", "Blocchi a intensita medio-alta ma sostenibile, recupero facile tra i blocchi."],
+            ["Bici intervalli soglia", "Blocchi piu impegnativi e regolari, mantenendo cadenza e postura."],
+          ],
+          "Nuoto tecnica + continuo facile": [
+            ["Nuoto tecnica base", "Vasche tecniche facili, recuperi ampi e attenzione ad assetto e respirazione."],
+            ["Nuoto tecnica + continuo facile", "Vasche tecniche alternate a nuoto continuo facile. Cura assetto, presa e respirazione."],
+            ["Nuoto continuo progressivo", "Volume tecnico piu lungo con finale leggermente piu sostenuto."],
+          ],
+          "Nuoto intervalli aerobici": [
+            ["Nuoto intervalli tecnici", "Serie brevi con recupero ampio e tecnica stabile."],
+            ["Nuoto intervalli aerobici", "Serie regolari con recupero breve e tecnica stabile dall'inizio alla fine."],
+            ["Nuoto intervalli soglia controllata", "Serie piu impegnative, recupero breve, qualita tecnica sempre prioritaria."],
+          ],
+        };
+        const variant = variants[exercise.name]?.[Math.max(0, Math.min(2, Number(phase) || 0))];
+        if (!variant) return exercise;
+        return { ...exercise, name: variant[0], description: variant[1] };
+      }
+
+      function applyProgression(days, phase) {
+        const profile = progressionProfile(phase);
+        return days.map((session) => ({
+          ...session,
+          name: `${session.name} | ${profile.label}`,
+          focus: `${session.focus} - ${profile.focus}`,
+          exercises: session.exercises.map((exercise, index) => {
+            const ex = levelExerciseVariant({ ...exercise }, phase);
+            const type = String(ex.type || "").toLowerCase();
+            const isWarmup = type.includes("riscaldamento");
+            const isCardio = isConditioningCategory(ex.type) || type.includes("running") || type.includes("bici") || type.includes("nuoto");
+            const isCoreOrPrehab = type.includes("core") || type.includes("prevenzione") || type.includes("mobilita");
+            if (isWarmup) {
+              ex.description = `${profile.note} ${ex.description}`;
+              return ex;
+            }
+            if (isCardio) {
+              if (phase === 0) ex.reps = ex.reps.includes("min") ? ex.reps.replace(/\d+-?\d*\s*min/i, "15-25 min") : ex.reps;
+              if (phase === 1) ex.reps = ex.reps.includes("min") ? ex.reps.replace(/\d+-?\d*\s*min/i, "25-40 min") : ex.reps;
+              if (phase === 2) ex.reps = ex.reps.includes("min") ? ex.reps.replace(/\d+-?\d*\s*min/i, "30-50 min") : ex.reps;
+              ex.rir = phase === 0 ? "3-4" : phase === 1 ? "2-3" : "2";
+              ex.description = `${profile.note} ${ex.description}`;
+              return ex;
+            }
+            if (isCoreOrPrehab || index >= 4) {
+              ex.sets = profile.accessorySets;
+              ex.reps = profile.accessoryReps;
+              ex.rest = Math.max(35, Number(ex.rest || 60) + profile.restDelta);
+              ex.rir = phase === 2 ? "2" : profile.rir;
+            } else {
+              ex.sets = profile.strengthSets;
+              ex.reps = profile.strengthReps;
+              ex.rest = Math.max(60, Number(ex.rest || 90) + profile.restDelta);
+              ex.rir = profile.rir;
+              ex.tut = profile.tut;
+            }
+            ex.description = `${profile.note} ${ex.description}`;
+            return ex;
+          }),
+        }));
+      }
+
+      function fitDaysToRequest(days, requestedDays) {
+        const target = Math.max(2, Math.min(5, Number(requestedDays) || 3));
+        if (days.length === target) return days;
+        if (days.length > target) return days.slice(0, target);
+        const result = [...days];
+        let cursor = 0;
+        while (result.length < target) {
+          const source = days[cursor % days.length];
+          cursor += 1;
+          result.push({
+            ...source,
+            name: `Allenamento ${result.length + 1} - Richiamo ${source.focus.split(" - ")[0] || "tecnico"}`,
+            exercises: source.exercises.map((exercise) => ({ ...exercise, id: uid(), completed: false, load: "", notes: "" })),
+            sessionFeedback: "",
+            aiSuggestion: "",
+            completedAt: "",
+          });
+        }
+        return result;
       }
 
       function templateBlueprint(key, phase) {
@@ -1593,14 +2026,15 @@
           ciclismo: "Ciclismo",
           nuoto: "Nuoto",
         };
-        const context = (a.equipment || []).join(", ") || "contesto non specificato";
+        const progression = progressionProfile(phase);
+        const requestedDays = Math.max(2, Math.min(5, Number(a.days || document.getElementById("planDays")?.value || 3)));
         return {
           id: uid(),
           title: `CoachAI Free - ${labels[key]} - Livello ${phase + 1}`,
           createdAt: new Date().toISOString(),
           disclaimer: "Scheda generale gratuita, non realmente personalizzata. Per adattamenti su dolore, patologie, tecnica, sport e progressi scrivi a humanperformancelab.app@gmail.com.",
-          summary: `Template progressivo livello ${phase + 1}/3. Contesto: ${context}. Focus: ${focus || a.goal || labels[key]}. Usa questa proposta come base educativa; per una scheda su misura richiedi consulenza con Andrea Bertelli.`,
-          days: templateBlueprint(key, phase),
+          summary: `${requestedDays} allenamenti a settimana. Template progressivo livello ${phase + 1}/3 - ${progression.label}. Focus: ${focus || a.goal || labels[key]}. Logica: ${progression.focus}. Usa questa proposta come base educativa; per una scheda su misura richiedi consulenza con Andrea Bertelli.`,
+          days: fitDaysToRequest(applyProgression(templateBlueprint(key, phase), phase), requestedDays),
         };
       }
 
@@ -1635,18 +2069,24 @@
       }
 
       function renderChecks() {
-        document.getElementById("sportsChecks").innerHTML = sports.map((item) => `
-          <label class="check"><input type="checkbox" name="sports" value="${item}">${item}</label>
-        `).join("");
+        const sportsBox = document.getElementById("sportsChecks");
+        if (sportsBox) {
+          sportsBox.innerHTML = sports.map((item) => `
+            <label class="check"><input type="checkbox" name="sports" value="${item}">${item}</label>
+          `).join("");
+        }
         const trainingBox = document.getElementById("trainingTypeChecks");
         if (trainingBox) {
           trainingBox.innerHTML = trainingTypes.map((item) => `
             <label class="check"><input type="checkbox" name="trainingTypes" value="${item}">${item}</label>
           `).join("");
         }
-        document.getElementById("equipmentChecks").innerHTML = equipment.map((item) => `
-          <label class="check"><input type="checkbox" name="equipment" value="${item}">${item}</label>
-        `).join("");
+        const equipmentBox = document.getElementById("equipmentChecks");
+        if (equipmentBox) {
+          equipmentBox.innerHTML = equipment.map((item) => `
+            <label class="check"><input type="checkbox" name="equipment" value="${item}">${item}</label>
+          `).join("");
+        }
       }
 
       function showApp() {
@@ -1680,9 +2120,11 @@
       function populateForms() {
         const user = currentUser();
         const a = user.anamnesis || {};
-        ["age", "height", "weight", "goal", "level", "limitations", "days", "minutes", "preferences"].forEach((id) => {
+        ["age", "height", "weight", "goal", "level", "limitations", "preferences"].forEach((id) => {
           if (a[id] !== undefined) document.getElementById(id).value = a[id];
         });
+        const planDays = document.getElementById("planDays");
+        if (planDays) planDays.value = String(a.days || 3);
         setCheckedValues("sports", a.sports || []);
         setCheckedValues("trainingTypes", a.trainingTypes || []);
         setCheckedValues("equipment", a.equipment || []);
@@ -1696,11 +2138,11 @@
           goal: document.getElementById("goal").value,
           level: document.getElementById("level").value,
           limitations: document.getElementById("limitations").value,
-          sports: checkedValues("sports"),
-          trainingTypes: checkedValues("trainingTypes"),
-          equipment: checkedValues("equipment"),
-          days: document.getElementById("days").value,
-          minutes: document.getElementById("minutes").value,
+          sports: [],
+          trainingTypes: [],
+          equipment: [],
+          days: document.getElementById("planDays")?.value || currentUser()?.anamnesis?.days || 3,
+          minutes: 60,
           preferences: document.getElementById("preferences").value,
         };
       }
@@ -1720,14 +2162,30 @@
       function renderTemplateCatalog() {
         const box = document.getElementById("templateCatalog");
         if (!box) return;
+        const descriptions = {
+          dimagrimento: "Forza, cardio controllato e densità sostenibile.",
+          ipertrofia: "Full body, split e progressioni per massa muscolare.",
+          forza: "Tecnica, carichi progressivi e pattern fondamentali.",
+          performance: "Forza utile, core, cambi direzione e prevenzione.",
+          benessere: "Routine complete per salute, mobilità e continuità.",
+          prevenzione: "Rientro graduale, controllo articolare e tolleranza.",
+          tennis: "Appoggi, tronco, spalla e lavoro specifico racchetta.",
+          calcio: "Gambe, frenate, sprint brevi e robustezza.",
+          running: "Base aerobica, forza runner e lavori di qualità.",
+          ciclismo: "Bici, core e forza complementare.",
+          nuoto: "Tecnica, dorsali, spalle e core.",
+        };
         box.innerHTML = templateCatalog.map((item) => `
-          <div class="panel">
-            <h3>${escapeHtml(item.label)}</h3>
-            <p class="muted">Tre schede progressive: base, intermedia, avanzata.</p>
-            <div class="top-actions" style="justify-content:flex-start">
-              <button class="btn secondary" type="button" onclick="selectTemplate('${item.key}', 0)">Livello 1</button>
-              <button class="btn secondary" type="button" onclick="selectTemplate('${item.key}', 1)">Livello 2</button>
-              <button class="btn secondary" type="button" onclick="selectTemplate('${item.key}', 2)">Livello 3</button>
+          <div class="panel catalog-card">
+            <div class="catalog-head">
+              <span class="tag">Piano pronto</span>
+              <h3>${escapeHtml(item.label)}</h3>
+              <p class="muted">${escapeHtml(descriptions[item.key] || "Tre schede progressive per iniziare e avanzare.")}</p>
+            </div>
+            <div class="catalog-levels">
+              <button class="btn secondary level-btn" type="button" onclick="selectTemplate('${item.key}', 0)"><strong>L1</strong><span>Base</span></button>
+              <button class="btn secondary level-btn" type="button" onclick="selectTemplate('${item.key}', 1)"><strong>L2</strong><span>Volume</span></button>
+              <button class="btn brand level-btn" type="button" onclick="selectTemplate('${item.key}', 2)"><strong>L3</strong><span>Intenso</span></button>
             </div>
           </div>
         `).join("");
@@ -2174,6 +2632,8 @@
       async function generatePlan() {
         const user = currentUser();
         if (!user) return;
+        const successBanner = document.getElementById("planSuccessBanner");
+        if (successBanner) successBanner.classList.add("hidden");
         const previousLevel = typeof user.templateLevel === "number" ? user.templateLevel : null;
         user.anamnesis = readAnamnesis();
         if (previousLevel === null) user.templateLevel = levelIndex(user.anamnesis.level);
@@ -2198,6 +2658,10 @@
           try {
             renderPlan();
             renderDashboard();
+            if (successBanner && generatedPlan) {
+              successBanner.classList.remove("hidden");
+              successBanner.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
             if (status) status.textContent = generatedPlan ? "Scheda progressiva pronta. Per personalizzazioni avanzate: humanperformancelab.app@gmail.com" : "Non sono riuscito a generare la scheda. Controlla i dati del profilo e riprova.";
           } catch (error) {
             console.error("Errore visualizzazione scheda", error);
@@ -2265,13 +2729,24 @@
         const plan = latestPlan();
         const output = document.getElementById("planOutput");
         if (!plan) {
-          output.innerHTML = `<div class="panel soft"><p class="muted">Compila l’anamnesi e genera la prima scheda.</p></div>`;
+          output.innerHTML = `<div class="panel soft"><h3>Pronto per iniziare</h3><p class="muted">Scegli una scheda dal catalogo oppure compila il profilo e genera la proposta coerente con obiettivo, sport e livello.</p></div>`;
           return;
         }
+        const totalExercises = plan.days.reduce((sum, day) => sum + day.exercises.length, 0);
+        const completedExercises = plan.days.reduce((sum, day) => sum + day.exercises.filter((ex) => ex.completed).length, 0);
+        const totalRest = plan.days.flatMap((day) => day.exercises).reduce((sum, ex) => sum + Number(ex.rest || 0), 0);
         output.innerHTML = `
-          <div class="panel">
-            <h3>${escapeHtml(plan.title)}</h3>
+          <div class="panel plan-header">
+            <div>
+              <span class="level-chip">Scheda attiva</span>
+              <h3 style="margin-top: 10px">${escapeHtml(plan.title)}</h3>
+            </div>
             <p>${escapeHtml(plan.summary || "")}</p>
+            <div class="plan-metrics">
+              <div class="kpi"><strong>${plan.days.length}</strong><span>Sedute</span></div>
+              <div class="kpi"><strong>${completedExercises}/${totalExercises}</strong><span>Esercizi completati</span></div>
+              <div class="kpi"><strong>${Math.round(totalRest / 60)}'</strong><span>Recuperi totali stimati</span></div>
+            </div>
             <div class="top-actions" style="justify-content:flex-start; margin: 12px 0">
               <span class="tag">Livello attuale: ${escapeHtml(levelName(currentUser().templateLevel || 0))}</span>
               ${currentUser().templateLevel < 2 ? `<button class="btn brand" type="button" onclick="generateNextLevel()">Genera livello successivo</button>` : `<span class="tag">Livello massimo gratuito</span>`}
@@ -2281,7 +2756,11 @@
           </div>
           ${plan.days.map((day, dayIndex) => `
             <div class="panel workout-day">
-              <h3>${escapeHtml(day.name)} <span class="tag">${escapeHtml(day.focus || "Sessione")}</span></h3>
+              <h3>${escapeHtml(day.name)}</h3>
+              <div class="plan-meta">
+                <span class="tag">${escapeHtml(day.focus || "Sessione")}</span>
+                <span class="tag">${day.exercises.length} blocchi</span>
+              </div>
               <div class="session-tools">
                 <span class="tag">${day.exercises.filter((ex) => ex.completed).length}/${day.exercises.length} completati</span>
                 <button class="btn brand" type="button" onclick="finishWorkout(${dayIndex})">Fine allenamento</button>
@@ -2305,7 +2784,7 @@
       function renderExercise(ex, dayIndex, exIndex) {
         return `
           <details class="exercise ${ex.completed ? "done" : ""}">
-            <summary>${escapeHtml(ex.name)} <span class="tag">${escapeHtml(ex.type || "Palestra")}</span></summary>
+            <summary>${escapeHtml(ex.name)} <span class="tag">${escapeHtml(ex.type || "Palestra")}</span> <span class="exercise-count">${escapeHtml(ex.sets)} x ${escapeHtml(ex.reps)} · RIR ${escapeHtml(ex.rir || "-")}</span></summary>
             <p><strong>Descrizione:</strong> ${escapeHtml(ex.description)}</p>
             <p><strong>Errori comuni:</strong> ${escapeHtml(ex.commonErrors)}</p>
             <div class="exercise-grid">
@@ -2434,15 +2913,15 @@
         if (!selected) return;
         const user = currentUser();
         user.templateLevel = Math.max(0, Math.min(2, Number(level) || 0));
+        user.templateKey = key;
         user.anamnesis = {
           ...readAnamnesis(),
           goal: selected.goal,
           level: levelName(user.templateLevel),
-          sports: selected.sports,
+          sports: [],
         };
         document.getElementById("goal").value = selected.goal;
         document.getElementById("level").value = levelName(user.templateLevel);
-        setCheckedValues("sports", selected.sports);
         saveState();
         generatePlan();
       };
@@ -2730,6 +3209,7 @@
         const user = currentUser();
         user.anamnesis = readAnamnesis();
         user.templateLevel = levelIndex(user.anamnesis.level);
+        user.templateKey = null;
         persistPlanInputs();
         saveState();
         alert("Dati salvati.");
@@ -2740,6 +3220,7 @@
         const user = currentUser();
         user.anamnesis = readAnamnesis();
         user.templateLevel = levelIndex(user.anamnesis.level);
+        user.templateKey = null;
         saveState();
         renderDashboard();
         switchSection("scheda");
