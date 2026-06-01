@@ -1,172 +1,141 @@
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+// ============================================================
+//  CoachAI · Andrea Bertelli — Funzione serverless Andrea IA
+//  Vercel Serverless Function  (Node.js runtime)
+//
+//  RUOLO DELL'AI (vincolato):
+//   - SPIEGARE gli esercizi e i concetti
+//   - ADATTARE carichi, ripetizioni e alternative
+//   - SUGGERIRE e RISPONDERE ai dubbi
+//   NON deve costruire schede complete da zero: la logica
+//   delle schede è template-based e vive nel frontend.
+//
+//  Variabile d'ambiente richiesta su Vercel:
+//   ANTHROPIC_API_KEY
+// ============================================================
 
-function json(res, status, body) {
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.end(JSON.stringify(body));
-}
+// Modello AI usato da Andrea IA. Se dovesse dare errore di modello,
+// prova un'altra stringa (es. 'claude-haiku-4-5-20251001').
+const AI_MODEL = 'claude-sonnet-4-6';
 
-function safeText(value) {
-  return String(value || "").slice(0, 12000);
-}
+const SYSTEM_PROMPT = `Sei "Andrea IA", l'assistente virtuale dell'app di allenamento CoachAI creata dal personal trainer Andrea Bertelli.
 
-function systemPrompt() {
-  return `
-Sei Andrea IA, assistente digitale del brand Andrea Bertelli: psicologo, nutrizionista e preparatore fisico.
-Rispondi in italiano, con tono professionale, chiaro e pratico.
-Rispondi anche se l'utente non ha ancora una scheda: puoi chiarire dubbi generali su allenamento, nutrizione, recupero, progressione, tecnica e abitudini.
-Non fare diagnosi, non prescrivere terapie e non sostituire medico, psicologo, nutrizionista o coach dal vivo.
-Quando emergono dolore, patologie, sintomi importanti, farmaci, gravidanza, disturbi alimentari o rischio clinico, invita a interrompere l'attivita' e rivolgersi a un medico o chiedere consulenza ad Andrea.
-Inserisci quando utile il contatto: humanperformancelab.app@gmail.com.
-Per le schede fitness: dai esercizi descritti bene, serie, ripetizioni, recuperi, RIR, TUT, note tecniche, errori comuni, progressione e adattamento allo sport dichiarato. Puoi includere palestra, corsa, bici, nuoto, HIIT e mobilita' quando coerenti con sport, obiettivi e materiale.
-`.trim();
-}
+IL TUO RUOLO (rigido):
+- SPIEGARE come si eseguono gli esercizi, la tecnica, gli errori comuni.
+- ADATTARE su richiesta dell'utente: suggerire come modulare carichi, ripetizioni, recuperi o proporre alternative a un esercizio (es. se manca un attrezzo).
+- SUGGERIRE consigli pratici su esecuzione, recupero, costanza, riscaldamento e mobilità generale.
+- RISPONDERE ai dubbi sull'allenamento in modo chiaro e motivante.
 
-function userPrompt(task, payload) {
-  if (task === "generate_plan") {
-    return `
-Crea una scheda fitness/palestra/cardio personalizzata in JSON valido.
-Considera anamnesi, obiettivi, sport, tipi di allenamento richiesti, materiale disponibile, numero allenamenti, progressi e focus richiesto.
-La scheda deve essere specifica e ben fatta: non usare nomi generici se puoi indicare variante, intensita', progressione o scopo.
-Imposta tu i recuperi in secondi in base a obiettivo, livello, esercizio e tempo disponibile. L'utente non li inserisce manualmente.
-Ogni seduta deve avere normalmente 6-8 blocchi tra riscaldamento, parte principale, complementari, core/mobilita' e defaticamento; usa meno blocchi solo se il tempo disponibile e' molto basso.
-Evita di ripetere sempre gli stessi esercizi tra sedute. Varia pattern, attrezzi e stimoli mantenendo coerenza con obiettivi e sport.
-Se nei dati e' presente "exerciseDatabase", usalo come catalogo prioritario da cui scegliere esercizi. Puoi adattare descrizioni, recuperi, RIR e TUT, ma non ripetere sempre gli stessi nomi.
-Se nei dati e' presente "programDraft", trattalo come struttura tecnica principale: mantieni split, logica, progressione e scelta esercizi salvo correzioni motivate. Il tuo compito e' rifinire descrizioni, coerenza e sicurezza, non distruggere la programmazione.
-Non includere markdown. Restituisci solo JSON con questa forma:
-{
-  "plan": {
-    "title": "string",
-    "summary": "string",
-    "disclaimer": "string",
-    "days": [
-      {
-        "name": "Allenamento 1",
-        "focus": "string",
-        "exercises": [
-          {
-            "name": "string",
-            "type": "Forza in palestra | Ipertrofia | Dimagrimento/metabolico | Corsa base | Corsa performance | Bici | Nuoto | HIIT | Mobilita e core | Prevenzione infortuni",
-            "description": "descrizione tecnica chiara",
-            "commonErrors": "errori comuni",
-            "sets": "3",
-            "reps": "8-12",
-            "rest": 90,
-            "rir": "2",
-            "tut": "3-1-1 oppure ritmo/zone per cardio",
-            "load": "",
-            "notes": "",
-            "completed": false
-          }
-        ]
-      }
-    ]
-  }
-}
-Dati:
-${safeText(JSON.stringify(payload, null, 2))}
-`.trim();
-  }
+COSA NON DEVI FARE:
+- NON costruire o riscrivere una scheda di allenamento completa da zero. Le schede sono generate dall'app con un metodo predefinito. Se l'utente chiede "creami una scheda nuova", spiega gentilmente che le schede si generano dal Catalogo dell'app scegliendo l'obiettivo, e che tu lo aiuti a seguirle e adattarle.
+- NON dare diagnosi mediche, prescrizioni o piani alimentari dettagliati. Per l'alimentazione rimanda ad "AB Nutrition". Per problemi di salute, dolore, patologie, gravidanza o sintomi, invita SEMPRE a fermarsi e consultare un medico.
+- NON inventare dati clinici.
 
-  if (task === "swap_exercise") {
-    return `
-Proponi una singola alternativa per un esercizio da sostituire. Rispetta motivo, dolore/attrezzi e anamnesi.
-Restituisci solo JSON valido:
-{
-  "exercise": {
-    "name": "string",
-    "type": "string",
-    "description": "descrizione tecnica chiara",
-    "commonErrors": "errori comuni",
-    "sets": "3",
-    "reps": "8-12",
-    "rest": 90,
-    "rir": "2",
-    "tut": "3-1-1 oppure ritmo/zone per cardio",
-    "load": "",
-    "notes": "perche' e' una buona sostituzione",
-    "completed": false
-  }
-}
-Dati:
-${safeText(JSON.stringify(payload, null, 2))}
-`.trim();
-  }
+STILE:
+- Italiano, tono amichevole, professionale e diretto, come un bravo coach.
+- Risposte brevi e concrete (max ~150 parole), con elenchi puntati quando utile.
+- Quando la richiesta richiede personalizzazione vera (storia clinica, infortuni, obiettivi complessi), invita a richiedere una consulenza personalizzata con Andrea Bertelli.
 
-  if (task === "workout_feedback") {
-    return `
-Analizza il feedback di fine allenamento e proponi modifiche pratiche alla scheda.
-Considera esercizi completati, carichi, RIR, TUT, dolore, fatica, sport e obiettivi.
-Restituisci solo JSON valido:
-{
-  "suggestion": "testo breve e pratico con cosa modificare nella prossima seduta"
-}
-Dati:
-${safeText(JSON.stringify(payload, null, 2))}
-`.trim();
-  }
-
-  return `
-Rispondi alla domanda dell'utente in italiano.
-Mantieni risposta pratica e prudente. Se serve, ricorda il disclaimer sanitario e il contatto humanperformancelab.app@gmail.com.
-Dati disponibili:
-${safeText(JSON.stringify(payload, null, 2))}
-`.trim();
-}
-
-function extractJson(text) {
-  const cleaned = text.trim().replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    const start = cleaned.indexOf("{");
-    const end = cleaned.lastIndexOf("}");
-    if (start >= 0 && end > start) return JSON.parse(cleaned.slice(start, end + 1));
-    throw new Error("JSON non valido dalla AI");
-  }
-}
+Hai a disposizione il contesto dell'utente e della sua scheda corrente: usalo per risposte pertinenti.`;
 
 module.exports = async function handler(req, res) {
-  if (req.method !== "POST") {
-    return json(res, 405, { error: "Metodo non consentito" });
+  // CORS / metodo
+  res.setHeader('Content-Type', 'application/json');
+  if (req.method === 'OPTIONS') { res.status(204).end(); return; }
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Metodo non consentito' });
+    return;
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return json(res, 500, { error: "ANTHROPIC_API_KEY mancante" });
+    res.status(500).json({ error: 'ANTHROPIC_API_KEY non configurata su Vercel.' });
+    return;
   }
 
   try {
-    const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
-    const task = body.task || "chat";
-    const payload = body.payload || {};
-    const model = process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest";
+    // body parsing (Vercel di solito lo fa già; gestiamo entrambi i casi)
+    let body = req.body;
+    if (typeof body === 'string') { body = JSON.parse(body || '{}'); }
+    body = body || {};
 
-    const anthropicResponse = await fetch(ANTHROPIC_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: task === "chat" ? 1200 : 3600,
-        temperature: task === "chat" ? 0.4 : 0.25,
-        system: systemPrompt(),
-        messages: [{ role: "user", content: userPrompt(task, payload) }],
-      }),
-    });
+    const message = (body.message || '').toString().slice(0, 2000);
+    const context = (body.context || '').toString().slice(0, 1500);
+    const history = Array.isArray(body.history) ? body.history.slice(-8) : [];
 
-    const data = await anthropicResponse.json();
-    if (!anthropicResponse.ok) {
-      return json(res, anthropicResponse.status, { error: data.error?.message || "Errore Anthropic" });
+    if (!message.trim()) {
+      res.status(400).json({ error: 'Messaggio vuoto.' });
+      return;
     }
 
-    const text = data.content?.map((part) => part.text || "").join("\n").trim() || "";
-    if (task === "chat") return json(res, 200, { reply: text });
-    return json(res, 200, extractJson(text));
-  } catch (error) {
-    return json(res, 500, { error: error.message || "Errore server" });
+    // Costruzione messaggi: storico + contesto + messaggio corrente
+    const messages = [];
+    for (const h of history) {
+      if (h && (h.role === 'user' || h.role === 'assistant') && h.content) {
+        messages.push({ role: h.role, content: String(h.content).slice(0, 1500) });
+      }
+    }
+    const userContent = context
+      ? `[Contesto utente: ${context}]\n\nDomanda: ${message}`
+      : message;
+    messages.push({ role: 'user', content: userContent });
+
+    // Prova più modelli in ordine: se uno non è valido/disponibile, passa al successivo.
+    const MODELS = [AI_MODEL, 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-sonnet-4-5', 'claude-sonnet-4-20250514']
+      .filter((m, i, a) => m && a.indexOf(m) === i);
+
+    let lastErr = null;
+    for (const model of MODELS) {
+      const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({ model, max_tokens: 600, system: SYSTEM_PROMPT, messages })
+      });
+
+      if (apiRes.ok) {
+        const data = await apiRes.json();
+        const reply = (data.content || [])
+          .filter(b => b.type === 'text').map(b => b.text).join('\n').trim()
+          || 'Non ho una risposta in questo momento, riprova.';
+        res.status(200).json({ reply, model });
+        return;
+      }
+
+      // Errore: leggi il dettaglio
+      let detail = {};
+      try { detail = await apiRes.json(); } catch (e) {}
+      const type = detail?.error?.type || '';
+      const msg = detail?.error?.message || ('HTTP ' + apiRes.status);
+      lastErr = { status: apiRes.status, type, msg };
+      console.error('Anthropic API error:', model, apiRes.status, type, msg);
+
+      // Chiave errata/credito: inutile provare altri modelli, ferma subito.
+      if (apiRes.status === 401 || type === 'authentication_error') {
+        res.status(401).json({ error: 'Chiave API non valida o non attiva.',
+          reply: '⚠️ La chiave API risulta non valida o non attiva. Controlla ANTHROPIC_API_KEY su Vercel (chiave corretta, attiva e con credito), poi fai un nuovo Deploy.' });
+        return;
+      }
+      if (apiRes.status === 400 && /credit|billing|balance/i.test(msg)) {
+        res.status(402).json({ error: 'Credito insufficiente.',
+          reply: '⚠️ Il tuo account Anthropic sembra senza credito. Aggiungi credito su console.anthropic.com e riprova.' });
+        return;
+      }
+      // Modello non trovato/non valido → prova il prossimo della lista
+      if (apiRes.status === 404 || /model/i.test(msg)) continue;
+      // Altri errori → prova comunque il prossimo
+    }
+
+    // Nessun modello ha funzionato
+    res.status(502).json({
+      error: 'Nessun modello disponibile: ' + (lastErr ? (lastErr.type || lastErr.status) + ' — ' + lastErr.msg : 'errore sconosciuto'),
+      reply: '⚠️ Non riesco a ottenere una risposta dai modelli AI (' + (lastErr ? lastErr.msg : 'errore') + '). Verifica la chiave su Vercel; se persiste, scrivi ad Andrea.'
+    });
+    return;
+  } catch (err) {
+    console.error('chat.js error:', err);
+    res.status(500).json({ error: 'Errore interno: ' + err.message, reply: 'Si è verificato un problema temporaneo. Riprova tra poco.' });
   }
 };

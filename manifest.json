@@ -1,0 +1,18 @@
+{
+  "name": "CoachAI · Andrea Bertelli",
+  "short_name": "CoachAI",
+  "description": "Schede di allenamento personalizzate per obiettivo, con assistente Andrea IA.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B0F12",
+  "theme_color": "#0B0F12",
+  "lang": "it",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
