@@ -385,7 +385,7 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
     <a href="#" onclick="openModal('privacy');return false">Privacy</a>
     <a href="#" onclick="openModal('terms');return false">Termini</a>
     <a href="#" onclick="openModal('disclaimer');return false">Disclaimer</a>
-    <div class="faint mt-8">CoachAI · Andrea Bertelli · v4</div>
+    <div class="faint mt-8">CoachAI · Andrea Bertelli · v5</div>
   </div>
 </div>
 
@@ -467,7 +467,7 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
     <a href="#" onclick="openModal('cookie');return false">Cookie</a>
     <a href="#" onclick="openModal('terms');return false">Termini</a>
     <a href="#" onclick="openModal('disclaimer');return false">Disclaimer</a>
-    <div class="faint mt-8">CoachAI · Andrea Bertelli — Personal Trainer · v4</div>
+    <div class="faint mt-8">CoachAI · Andrea Bertelli — Personal Trainer · v5</div>
   </div>
 </div>
 
@@ -1813,9 +1813,12 @@ function startReminderLoop(){
    ============================================================ */
 let deferredPrompt=null;
 function registerSW(){
+  // Disattiviamo il service worker: rimuoviamo quelli vecchi e svuotiamo la cache,
+  // così l'app carica SEMPRE la versione aggiornata dalla rete (niente più versioni "bloccate").
   if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+    navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
   }
+  if(window.caches){ caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))).catch(()=>{}); }
 }
 window.addEventListener('beforeinstallprompt',(e)=>{
   e.preventDefault(); deferredPrompt=e; showInstallBtn();
